@@ -10,12 +10,13 @@ namespace Compiler
         static void Main()
         {
             InputOutput.SetFile("example.pas");
-                
+            LexicalAnalyzer l = new LexicalAnalyzer();
+
             while (true) // Читаем до конца файл
             {
                 try
                 {
-                    InputOutput.NextCh();
+                    l.NextSym();
                 }
                 catch (Exception ex)
                 {
