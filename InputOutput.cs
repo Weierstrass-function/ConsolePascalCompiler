@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Компилятор
+namespace Compiler
 {
     struct TextPosition
     {
@@ -28,79 +28,143 @@ namespace Компилятор
         }
     }
 
-
     class InputOutput
     {
         const byte ERRMAX = 9;
         public static char Ch { get; set; }
-        public static TextPosition positionNow = new TextPosition();
-        static string line;
-        static byte lastInLine = 0;
-        public static List<Err> err;
-        static StreamReader File { get;  set; }
+        public static TextPosition positionNow = new();
+        static string line = string.Empty;
+        static int lastInLine;
+        public static List<Err> err = new();
+        static StreamReader File { get; set; }
         static uint errCount = 0;
 
+        /// <summary>
+        /// Установка файла для компиляции
+        /// </summary>
+        /// <param name="filePath">Путь к файлу</param>
+        public static void SetFile(string filePath)
+        {
+            try
+            {
+                if (!System.IO.File.Exists(filePath))
+                {
+                    Console.WriteLine("Файл не найден: " + filePath);
+                    return;
+                }
+
+                File = new StreamReader(filePath);
+                line = File.ReadLine() ?? string.Empty;
+                lastInLine = line.Length;
+                err = new List<Err>();
+                positionNow = new TextPosition(1, 0); // Reset position to first line
+                Ch = line.Length > 0 ? line[0] : '\0';
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine("Нет доступа к файлу: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Получение следующего символа
+        /// </summary>
         static public void NextCh()
         {
-            if (positionNow.charNumber == lastInLine)
+            if (positionNow.charNumber >= lastInLine)
             {
                 ListThisLine();
                 if (err.Count > 0)
-                        ListErrors();
+                    ListErrors();
                 ReadNextLine();
-                positionNow.lineNumber = positionNow.lineNumber + 1;
+                positionNow.lineNumber++;
                 positionNow.charNumber = 0;
-            }
-            else ++positionNow.charNumber;
-            Ch = line[positionNow.charNumber];
-        }
-
-        private static void ListThisLine()
-        {
-            Console.WriteLine(line);
-        }
-
-        private static void ReadNextLine()
-        {
-            if (!File.EndOfStream)
-            {
-                line = File.ReadLine();
-                err = new List<Err>();
+                Ch = line.Length > 0 ? line[0] : '\0';
             }
             else
             {
-                End();
+                positionNow.charNumber++;
+                Ch = positionNow.charNumber < line.Length ? line[positionNow.charNumber] : '\0';
             }
         }
 
-        static void End()
+        /// <summary>
+        /// Вывод строки текущей строки в консоль
+        /// </summary>
+        private static void ListThisLine()
         {
-            Console.WriteLine($"Компиляция завершена: : ошибок — {errCount}!");
+            Console.WriteLine($"{positionNow.lineNumber,4}: {line}");
         }
 
+        /// <summary>
+        /// Получение следующей строки
+        /// </summary>
+        private static void ReadNextLine()
+        {
+            try
+            {
+                if (!File.EndOfStream)
+                {
+                    line = File.ReadLine() ?? string.Empty;
+                    lastInLine = line.Length;
+                    err = new List<Err>();
+                }
+                else
+                {
+                    line = string.Empty;
+                    lastInLine = 0;
+                    Ch = '\0';
+                    End();
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Если файл уже закрыт, просто выходим
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Вывод сообщения о завершении в консоль
+        /// </summary>
+        static void End()
+        {
+            Console.WriteLine($"Компиляция завершена: ошибок — {errCount}!");
+            if (File != null)
+            {
+                File.Dispose();
+                File = null;
+            }
+        }
+
+        /// <summary>
+        /// Вывод ошибок в консоль
+        /// </summary>
         static void ListErrors()
         {
-            int pos = 6 - $"{positionNow.lineNumber} ".Length;
-            string s;
             foreach (Err item in err)
             {
                 ++errCount;
-                s = "**";
-                if (errCount < 10) s += "0";
-                s += $"{errCount}**";
-                while (s.Length - 1 < pos + item.errorPosition.charNumber) s += " ";
-                s += $"^ ошибка код {item.errorCode}";
-                Console.WriteLine(s);
+                string marker = errCount < 10 ? $"**0{errCount}**" : $"**{errCount}**";
+                int spaces = item.errorPosition.charNumber + 6;
+                Console.WriteLine($"{marker.PadRight(spaces)}^ ошибка код {item.errorCode}");
             }
         }
 
+        /// <summary>
+        /// Формирование таблицы ошибок
+        /// </summary>
+        /// <param name="errorCode"></param>
+        /// <param name="position"></param>
         static public void Error(byte errorCode, TextPosition position)
         {
-            Err e;
-            if (err.Count <= ERRMAX)
+            if (err.Count < ERRMAX)
             {
-                e = new Err(position, errorCode);
-                err.Add(e);
+                err.Add(new Err(position, errorCode));
             }
         }
     }
