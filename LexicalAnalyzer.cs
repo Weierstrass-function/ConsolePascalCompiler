@@ -29,7 +29,11 @@ namespace Compiler
             rcomment = 73,	//  *)
             assign = 51,	//  :=
             twopoints = 74,	//  ..
-            ident = 2,	// идентификатор
+
+            // Constantldentifier, Variableldentifier, Fieldldentifier. Boundldentifier.
+            // Typeldentifier. Procedureldentifier and Functionldentifier
+            ident = 2,	// идентификатор 
+            
             floatc = 82,	// вещественная константа
             intc = 15,	// целая константа
             charc = 83,	// символьная константа
@@ -67,7 +71,9 @@ namespace Compiler
             repeatsy = 121,
             programsy = 122,
             functionsy = 123,
-            procedurensy = 124;
+            procedurensy = 124,
+            stringc = 84;
+        //public const byte stringc = 84;    // строковая константа
 
         private Keywords keywords;
 
@@ -206,7 +212,33 @@ namespace Compiler
                     }
                     break;
                    
-                // case <символьная константа> :
+                // // case <символьная константа> :
+                // case '\'':
+                //     InputOutput.NextCh();
+                //     if (InputOutput.Ch == '\'')
+                //     {
+                //         InputOutput.Error(205, InputOutput.positionNow); // Empty character constant
+                //         symbol = charc;
+                //         one_symbol = ' ';
+                //     }
+                //     else
+                //     {
+                //         one_symbol = InputOutput.Ch;
+                //         InputOutput.NextCh();
+                //         if (InputOutput.Ch == '\'')
+                //         {
+                //             symbol = charc;
+                //             InputOutput.NextCh();
+                //         }
+                //         else
+                //         {
+                //             InputOutput.Error(204, InputOutput.positionNow);
+                //             symbol = charc;
+                //         }
+                //     }
+                //     break;
+
+                // case CharacterString
                 case '\'':
                     InputOutput.NextCh();
                     if (InputOutput.Ch == '\'')
@@ -214,20 +246,48 @@ namespace Compiler
                         InputOutput.Error(205, InputOutput.positionNow); // Empty character constant
                         symbol = charc;
                         one_symbol = ' ';
+                        InputOutput.NextCh();
                     }
                     else
                     {
-                        one_symbol = InputOutput.Ch;
+                        char firstChar = InputOutput.Ch;
                         InputOutput.NextCh();
-                        if (InputOutput.Ch == '\'')
+                        
+                        if (InputOutput.Ch == '\'') 
                         {
+                            // Single character - treat as char constant
                             symbol = charc;
+                            one_symbol = firstChar;
                             InputOutput.NextCh();
                         }
                         else
                         {
-                            InputOutput.Error(204, InputOutput.positionNow);
-                            symbol = charc;
+                            // Multi-character string
+                            while (true)
+                            {
+                                if (InputOutput.Ch == '\'')
+                                {
+                                    InputOutput.NextCh();
+                                    if (InputOutput.Ch == '\'') // Escaped quote
+                                    {
+                                        InputOutput.NextCh();
+                                    }
+                                    else
+                                    {
+                                        break; // End of string
+                                    }
+                                }
+                                else if (InputOutput.Ch == '\n' || InputOutput.Ch == '\0')
+                                {
+                                    InputOutput.Error(204, InputOutput.positionNow); // Unclosed string
+                                    break;
+                                }
+                                else
+                                {
+                                    InputOutput.NextCh();
+                                }
+                            }
+                            symbol = stringc;
                         }
                     }
                     break;
