@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+
 namespace Compiler
 {
     class LexicalAnalyzer
@@ -76,6 +78,7 @@ namespace Compiler
         //public const byte stringc = 84;    // строковая константа
 
         private Keywords keywords;
+        private StreamWriter symbolsFile;
 
         public byte symbol; // код символа
         public TextPosition token; // позиция символа
@@ -87,6 +90,21 @@ namespace Compiler
         public LexicalAnalyzer()
         {
             keywords = new Keywords();
+            symbolsFile = new StreamWriter("symbols.txt", false);
+        }
+
+        ~LexicalAnalyzer()
+        {
+            if (symbolsFile != null)
+            {
+                symbolsFile.Close();
+            }
+        }
+
+        private void WriteSymbolToFile()
+        {
+            symbolsFile.WriteLine($"{token.lineNumber}: {symbol}");
+            symbolsFile.Flush();
         }
 
         /// <summary>
@@ -130,6 +148,7 @@ namespace Compiler
                         symbol = ident;
                         addrName = name;
                     }
+                    WriteSymbolToFile();
                     break;
 
                 // case <целая константа> | <вещественная константа> :
@@ -210,42 +229,15 @@ namespace Compiler
                     {
                         symbol = intc;
                     }
+                    WriteSymbolToFile();
                     break;
                    
-                // // case <символьная константа> :
-                // case '\'':
-                //     InputOutput.NextCh();
-                //     if (InputOutput.Ch == '\'')
-                //     {
-                //         InputOutput.Error(205, InputOutput.positionNow); // Empty character constant
-                //         symbol = charc;
-                //         one_symbol = ' ';
-                //     }
-                //     else
-                //     {
-                //         one_symbol = InputOutput.Ch;
-                //         InputOutput.NextCh();
-                //         if (InputOutput.Ch == '\'')
-                //         {
-                //             symbol = charc;
-                //             InputOutput.NextCh();
-                //         }
-                //         else
-                //         {
-                //             InputOutput.Error(204, InputOutput.positionNow);
-                //             symbol = charc;
-                //         }
-                //     }
-                //     break;
-
-                // case CharacterString
+                // case <символьная константа> :
                 case '\'':
                     InputOutput.NextCh();
                     if (InputOutput.Ch == '\'')
                     {
-                        InputOutput.Error(205, InputOutput.positionNow); // Empty character constant
-                        symbol = charc;
-                        one_symbol = ' ';
+                        InputOutput.Error(205, InputOutput.positionNow);
                         InputOutput.NextCh();
                     }
                     else
@@ -263,23 +255,23 @@ namespace Compiler
                         else
                         {
                             // Multi-character string
-                            while (true)
+                            while (InputOutput.Ch != '\0')
                             {
-                                if (InputOutput.Ch == '\'')
+                                if (InputOutput.Ch == '\'') // Found a quote
                                 {
                                     InputOutput.NextCh();
-                                    if (InputOutput.Ch == '\'') // Escaped quote
+                                    if (InputOutput.Ch == '\'') // Double quote - escaped
                                     {
-                                        InputOutput.NextCh();
+                                        InputOutput.NextCh(); // Continue string
                                     }
                                     else
                                     {
-                                        break; // End of string
+                                        break; // Single quote - end of string
                                     }
                                 }
-                                else if (InputOutput.Ch == '\n' || InputOutput.Ch == '\0')
+                                else if (InputOutput.Ch == '\n')
                                 {
-                                    InputOutput.Error(204, InputOutput.positionNow); // Unclosed string
+                                    InputOutput.Error(204, InputOutput.positionNow);
                                     break;
                                 }
                                 else
@@ -290,6 +282,7 @@ namespace Compiler
                             symbol = stringc;
                         }
                     }
+                    WriteSymbolToFile();
                     break;
 
                 // < | <= | <>
@@ -305,6 +298,7 @@ namespace Compiler
                     }
                     else
                         symbol = later;
+                    WriteSymbolToFile();
                     break;
             
                 // > | >=
@@ -316,6 +310,7 @@ namespace Compiler
                     }
                     else
                         symbol = greater;
+                    WriteSymbolToFile();
                     break;
 
                 // : | :=
@@ -327,83 +322,122 @@ namespace Compiler
                     }
                     else
                         symbol = colon;
+                    WriteSymbolToFile();
                     break;
 
                 case '+':
                     symbol = plus;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
                 case '-':
                     symbol = minus;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
 
-                    // * | *)
                 case '*':
                     InputOutput.NextCh();
                     if (InputOutput.Ch == ')')
                     {
+                        // Skip comment end
                         symbol = rcomment;
                         InputOutput.NextCh();
                     }
                     else
                         symbol = star;
+                    WriteSymbolToFile();
                     break;
 
                 case '/':
                     symbol = slash;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
                 case '=':
                     symbol = equal;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
 
-                // ( | (*    
                 case '(':
                     InputOutput.NextCh();
                     if (InputOutput.Ch == '*')
                     {
-                        symbol = lcomment;
                         InputOutput.NextCh();
+
+                        // Skip comment
+                        while (true)
+                        {
+                            if (InputOutput.Ch == '*')
+                            {
+                                InputOutput.NextCh();
+                                if (InputOutput.Ch == ')')
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                InputOutput.NextCh();
+                            }
+                        }
                     }
                     else
+                    {
                         symbol = leftpar;
+                        WriteSymbolToFile();
+                    }
+
+                    InputOutput.NextCh();
                     break;
 
                 case ')':
                     symbol = rightpar;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
 
                 case '{':
-                    symbol = flpar;
+                    // Пропуск комментария
+                    while (InputOutput.Ch != '}')
+                    {
+                        InputOutput.NextCh();
+                    }
+
                     InputOutput.NextCh();
                     break;
+
                 case '}':
                     symbol = frpar;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
                 case '[':
                     symbol = lbracket;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
                 case ']':
                     symbol = rbracket;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
                 case ',':
                     symbol = comma;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
                 case '^':
                     symbol = arrow;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
 
                 case ';':
                     symbol = semicolon;
                     InputOutput.NextCh();
+                    WriteSymbolToFile();
                     break;
 
                 // . | ..
@@ -414,19 +448,18 @@ namespace Compiler
                         symbol = twopoints; InputOutput.NextCh();
                     }
                     else symbol = point;
+                    WriteSymbolToFile();
                     break;
 
                 default:
                     InputOutput.Error(6, InputOutput.positionNow);
                     InputOutput.NextCh();
                     symbol = 0;
+                    WriteSymbolToFile();
                     break;
             }
 
-
             return symbol;
         }
-
-
     }
 }
