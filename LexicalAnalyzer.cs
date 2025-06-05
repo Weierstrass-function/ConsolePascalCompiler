@@ -34,7 +34,7 @@ namespace Compiler
 
             // Constantldentifier, Variableldentifier, Fieldldentifier. Boundldentifier.
             // Typeldentifier. Procedureldentifier and Functionldentifier
-            ident = 2,	// идентификатор 
+            ident = 2,	// идентификатор
             
             floatc = 82,	// вещественная константа
             intc = 15,	// целая константа
@@ -75,7 +75,6 @@ namespace Compiler
             functionsy = 123,
             procedurensy = 124,
             stringc = 84;
-        //public const byte stringc = 84;    // строковая константа
 
         private Keywords keywords;
         private StreamWriter symbolsFile;
@@ -121,11 +120,11 @@ namespace Compiler
             switch (InputOutput.Ch)
             {
                 // case <идентификатор или ключевое слово> :
-                case char c when ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')):
+                case char c when (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'):
                     string name = "";
-                    while ((InputOutput.Ch >= 'a' && InputOutput.Ch <= 'z') ||
-                            (InputOutput.Ch >= 'A' && InputOutput.Ch <= 'Z') ||
-                            (InputOutput.Ch >= '0' && InputOutput.Ch <= '9'))
+                    while ((InputOutput.Ch >= 'A' && InputOutput.Ch <= 'Z') || 
+                           (InputOutput.Ch >= 'a' && InputOutput.Ch <= 'z') ||
+                           (InputOutput.Ch >= '0' && InputOutput.Ch <= '9'))
                     {
                         name += InputOutput.Ch;
                         InputOutput.NextCh();
@@ -282,6 +281,11 @@ namespace Compiler
                             symbol = stringc;
                         }
                     }
+
+                    if (InputOutput.Ch == '\0')
+                    {
+                        InputOutput.Error(204, InputOutput.positionNow);
+                    }
                     WriteSymbolToFile();
                     break;
 
@@ -388,8 +392,6 @@ namespace Compiler
                         symbol = leftpar;
                         WriteSymbolToFile();
                     }
-
-                    InputOutput.NextCh();
                     break;
 
                 case ')':
@@ -408,11 +410,6 @@ namespace Compiler
                     InputOutput.NextCh();
                     break;
 
-                case '}':
-                    symbol = frpar;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
                 case '[':
                     symbol = lbracket;
                     InputOutput.NextCh();
