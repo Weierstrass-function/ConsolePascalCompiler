@@ -234,54 +234,153 @@ namespace Compiler
                 // case <символьная константа> :
                 case '\'':
                     InputOutput.NextCh();
-                    if (InputOutput.Ch == '\'')
-                    {
-                        InputOutput.Error(205, InputOutput.positionNow);
-                        InputOutput.NextCh();
-                    }
-                    else
-                    {
-                        char firstChar = InputOutput.Ch;
-                        InputOutput.NextCh();
-                        
-                        if (InputOutput.Ch == '\'') 
+                    // char prevChar = InputOutput.Ch;
+                    // string str = "";
+
+                    while (InputOutput.Ch != '\0')
+                    {    
+                        if (InputOutput.Ch == '\'')
                         {
-                            // Одиночный символ
-                            symbol = charc;
-                            one_symbol = firstChar;
                             InputOutput.NextCh();
+                            if (InputOutput.Ch == '\'')
+                            {
+                                InputOutput.NextCh();
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                         else
                         {
-                            // Строковый литерал
-                            while (InputOutput.Ch != '\0')
-                            {
-                                if (InputOutput.Ch == '\'') // '
-                                {
-                                    InputOutput.NextCh();
-                                    if (InputOutput.Ch == '\'') // ''
-                                    {
-                                        InputOutput.NextCh();
-                                    }
-                                    else // '
-                                    {
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    InputOutput.NextCh();
-                                }
-                            }
-                            symbol = stringc;
+                            //str += InputOutput.Ch;
+                            InputOutput.NextCh();
                         }
                     }
+
+                    // do
+                    // {
+                    //     InputOutput.NextCh();
+                    //     if (InputOutput.Ch == '\'')
+                    //     {
+                    //         InputOutput.NextCh();
+                    //         if (InputOutput.Ch == '\'')
+                    //         {
+                    //             InputOutput.NextCh();
+                    //         }
+                    //         else
+                    //         {
+                    //             if (prevChar == '\'')
+                    //             {
+                    //                 InputOutput.Error(85, InputOutput.positionNow);
+                    //             }
+                    //             else
+                    //             {
+                    //                 break;
+                    //             }
+                    //         }
+                    //     }
+                    //     else
+                    //     {
+                    //         str += InputOutput.Ch;
+                    //         InputOutput.NextCh();
+                    //     }
+
+                    //     prevChar = InputOutput.Ch;
+                    // } while (InputOutput.Ch != '\0');
 
                     if (InputOutput.Ch == '\0')
                     {
                         InputOutput.Error(84, InputOutput.positionNow);
                     }
+
+                    symbol = stringc;
                     WriteSymbolToFile();
+
+                    
+                    // // Проверяем на экранированные кавычки в начале
+                    // int quoteCount = 1;
+                    // while (InputOutput.Ch == '\'')
+                    // {
+                    //     quoteCount++;
+                    //     InputOutput.NextCh();
+                    // }
+
+                    // if (quoteCount == 1) // Одиночная кавычка - начало символьной или строковой константы
+                    // {
+                    //     if (InputOutput.Ch == '\'')
+                    //     {
+                    //         InputOutput.Error(205, InputOutput.positionNow);
+                    //         InputOutput.NextCh();
+                    //     }
+                    //     else
+                    //     {
+                    //         char firstChar = InputOutput.Ch;
+                    //         InputOutput.NextCh();
+                            
+                    //         if (InputOutput.Ch == '\'') 
+                    //         {
+                    //             // Одиночный символ
+                    //             symbol = charc;
+                    //             one_symbol = firstChar;
+                    //             InputOutput.NextCh();
+                    //         }
+                    //         else
+                    //         {
+                    //             // Строковый литерал
+                    //             while (InputOutput.Ch != '\0')
+                    //             {
+                    //                 if (InputOutput.Ch == '\'')
+                    //                 {
+                    //                     InputOutput.NextCh();
+                    //                     if (InputOutput.Ch == '\'')
+                    //                     {
+                    //                         InputOutput.NextCh();
+                    //                     }
+                    //                     else
+                    //                     {
+                    //                         break;
+                    //                     }
+                    //                 }
+                    //                 else
+                    //                 {
+                    //                     InputOutput.NextCh();
+                    //                 }
+                    //             }
+                    //             symbol = stringc;
+                    //         }
+                    //     }
+                    // }
+                    // else // Несколько кавычек подряд - строковый литерал
+                    // {
+                    //     // Читаем содержимое строки
+                    //     while (InputOutput.Ch != '\0')
+                    //     {
+                    //         if (InputOutput.Ch == '\'')
+                    //         {
+                    //             InputOutput.NextCh();
+                    //             if (InputOutput.Ch == '\'')
+                    //             {
+                    //                 InputOutput.NextCh();
+                    //             }
+                    //             else
+                    //             {
+                    //                 break;
+                    //             }
+                    //         }
+                    //         else
+                    //         {
+                    //             InputOutput.NextCh();
+                    //         }
+                    //     }
+                    //     symbol = stringc;
+                    // }
+
+                    // if (InputOutput.Ch == '\0')
+                    // {
+                    //     InputOutput.Error(84, InputOutput.positionNow);
+                    // }
+                    // WriteSymbolToFile();
                     break;
 
                 // < | <= | <>
