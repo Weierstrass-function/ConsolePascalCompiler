@@ -246,32 +246,27 @@ namespace Compiler
                         
                         if (InputOutput.Ch == '\'') 
                         {
-                            // Single character - treat as char constant
+                            // Одиночный символ
                             symbol = charc;
                             one_symbol = firstChar;
                             InputOutput.NextCh();
                         }
                         else
                         {
-                            // Multi-character string
+                            // Строковый литерал
                             while (InputOutput.Ch != '\0')
                             {
-                                if (InputOutput.Ch == '\'') // Found a quote
+                                if (InputOutput.Ch == '\'') // '
                                 {
                                     InputOutput.NextCh();
-                                    if (InputOutput.Ch == '\'') // Double quote - escaped
+                                    if (InputOutput.Ch == '\'') // ''
                                     {
-                                        InputOutput.NextCh(); // Continue string
+                                        InputOutput.NextCh();
                                     }
-                                    else
+                                    else // '
                                     {
-                                        break; // Single quote - end of string
+                                        break;
                                     }
-                                }
-                                else if (InputOutput.Ch == '\n')
-                                {
-                                    InputOutput.Error(204, InputOutput.positionNow);
-                                    break;
                                 }
                                 else
                                 {
@@ -284,7 +279,7 @@ namespace Compiler
 
                     if (InputOutput.Ch == '\0')
                     {
-                        InputOutput.Error(204, InputOutput.positionNow);
+                        InputOutput.Error(84, InputOutput.positionNow);
                     }
                     WriteSymbolToFile();
                     break;
