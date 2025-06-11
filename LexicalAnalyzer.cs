@@ -79,7 +79,7 @@ namespace Compiler
         private Keywords keywords;
         private StreamWriter symbolsFile;
 
-        public byte symbol; // код символа
+        public byte symbol; // код символаwri
         public TextPosition token; // позиция символа
         string addrName; // адрес идентификатора в таблице имен
         int nmb_int; // значение целой константы
@@ -502,6 +502,8 @@ namespace Compiler
                     }
 
                     InputOutput.NextCh();
+
+                    symbol = NextSym();
                     break;
 
                 case '[':
