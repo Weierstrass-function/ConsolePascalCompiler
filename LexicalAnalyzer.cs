@@ -472,6 +472,8 @@ namespace Compiler
                                 InputOutput.NextCh();
                                 if (InputOutput.Ch == ')')
                                 {
+                                    InputOutput.NextCh();
+                                    symbol = NextSym();
                                     break;
                                 }
                             }
