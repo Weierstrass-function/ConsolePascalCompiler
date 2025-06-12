@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.IO;
 
 namespace Compiler
@@ -112,7 +113,16 @@ namespace Compiler
         /// <returns>Код символа</returns>
         public byte NextSym()
         {
-            while (char.IsWhiteSpace(InputOutput.Ch) || InputOutput.Ch == '\0') InputOutput.NextCh();
+            while (char.IsWhiteSpace(InputOutput.Ch) || InputOutput.Ch == '\0')
+            {
+                InputOutput.NextCh();
+                if (InputOutput.Ch == '\0')
+                {
+                    Console.WriteLine("!");
+                    Environment.Exit(0);
+                }
+            } 
+               
             token.lineNumber = InputOutput.positionNow.lineNumber;
             token.charNumber = InputOutput.positionNow.charNumber;
 

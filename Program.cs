@@ -9,10 +9,10 @@ namespace Compiler
     {
         static void Main()
         {
-            InputOutput.SetFile("example.pas");
+            InputOutput.ReadFile("example.pas");
 
-            SyntaxAnalyzer s = new SyntaxAnalyzer(new LexicalAnalyzer());
-            s.Analyze();
+            // SyntaxAnalyzer s = new SyntaxAnalyzer(new LexicalAnalyzer());
+            // s.Analyze();
 
 
             //LexicalAnalyzer l = new LexicalAnalyzer();
