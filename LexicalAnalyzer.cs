@@ -75,7 +75,8 @@ namespace Compiler
             programsy = 122,
             functionsy = 123,
             procedurensy = 124,
-            stringc = 84;
+            stringc = 84,
+            eof = 125;
 
         private Keywords keywords;
         private StreamWriter symbolsFile;
@@ -113,16 +114,16 @@ namespace Compiler
         /// <returns>Код символа</returns>
         public byte NextSym()
         {
-            while (char.IsWhiteSpace(InputOutput.Ch) || InputOutput.Ch == '\0')
+            while (InputOutput.Ch == ' ' || InputOutput.Ch == '\t')
             {
                 InputOutput.NextCh();
-                if (InputOutput.Ch == '\0')
-                {
-                    Console.WriteLine("!");
-                    Environment.Exit(0);
-                }
             } 
-               
+            
+            if (InputOutput.Ch == '\n')
+            {
+                return eof;
+            }
+
             token.lineNumber = InputOutput.positionNow.lineNumber;
             token.charNumber = InputOutput.positionNow.charNumber;
 

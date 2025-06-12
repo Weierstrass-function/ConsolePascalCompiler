@@ -18,6 +18,15 @@ namespace Compiler
         {
             currentSymbol = lexer.NextSym();
             Program();
+            
+            if (currentSymbol != LexicalAnalyzer.eof)
+            {
+                InputOutput.Error(309, lexer.token);
+                while (currentSymbol != LexicalAnalyzer.eof)
+                {
+                    currentSymbol = lexer.NextSym();
+                }
+            }
         }
 
         // 'program' <ident> ['(' <ident> {, <ident>} ')' ];' <Block> '.'
@@ -150,7 +159,21 @@ namespace Compiler
             if (currentSymbol == LexicalAnalyzer.beginsy)
             {
                 currentSymbol = lexer.NextSym();
-                ParseCompoundStatement();
+            }
+            else
+            {
+                InputOutput.Error(17, lexer.token);
+            }
+
+            ParseCompoundStatement();
+
+            if (currentSymbol == LexicalAnalyzer.endsy)
+            {
+                currentSymbol = lexer.NextSym();
+            }
+            else
+            {
+                InputOutput.Error(13, lexer.token);
             }
         }
 
@@ -599,21 +622,13 @@ namespace Compiler
 
         void ParseCompoundStatement()
         {
-            // <составной оператор> ::= begin <оператор> {; <оператор>} end
+            // <оператор> {; <оператор>}
             Statement();
             while (currentSymbol == LexicalAnalyzer.semicolon)
             {
                 currentSymbol = lexer.NextSym();
                 Statement();
-            }
-
-            if (currentSymbol != LexicalAnalyzer.endsy)
-            {
-                InputOutput.Error(6, lexer.token); // Ожидается 'end'
-                //return;
-            }
-
-            currentSymbol = lexer.NextSym();            
+            }         
         }
 
         // все, далее БНФ абсолютно не читаемы и бесполезны

@@ -32,18 +32,18 @@ namespace Compiler
     class InputOutput
     {
         const byte ERRMAX = 9;
-        public static char Ch { get; set; }
+        public static char Ch = ' ';
         public static TextPosition positionNow = new();
         static string? line = string.Empty;
         static int lastInLine = 0;
         public static List<Err> err = new();
-        static StreamReader? File { get; set; }
+        static StreamReader? File = null;
         static uint errCount = 0;
 
-        /// <summary>
-        /// Установка файла для компиляции
-        /// </summary>
-        /// <param name="filePath">Путь к файлу</param>
+        // /// <summary>
+        // /// Установка файла для компиляции
+        // /// </summary>
+        // /// <param name="filePath">Путь к файлу</param>
         // public static void SetFile(string filePath)
         // {
         //     try
@@ -82,27 +82,27 @@ namespace Compiler
 
                 File = new StreamReader(filePath);
                 
-                line = File.ReadLine();
+                //line = File.ReadLine();
 
                 // Сохранение длины строки
-                lastInLine = line.Length;
+                //lastInLine = line.Length;
                 
-                err = new List<Err>();
+                //err = new List<Err>();
                 
-                positionNow = new TextPosition(1, 0);
+                //positionNow = new TextPosition(1, 0);
                 
                 // Получение первого символа или пробела, если строка пуста
-                if (line.Length > 0)
-                {
-                    Ch = line[0];
-                }
-                else 
-                {
-                    Ch = ' ';
-                }
-
-                //SyntaxAnalyzer s = new SyntaxAnalyzer(new LexicalAnalyzer());
-                //s.Analyze();
+                // if (line.Length > 0)
+                // {
+                //     Ch = line[0];
+                // }
+                // else 
+                // {
+                //     Ch = ' ';
+                // }
+                
+                // SyntaxAnalyzer s = new SyntaxAnalyzer(new LexicalAnalyzer());
+                // s.Analyze();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -112,11 +112,18 @@ namespace Compiler
             {
                 Console.WriteLine("Ошибка: " + ex.Message);
             }
+
+            if (File != null)
+            {
+                LexicalAnalyzer l = new LexicalAnalyzer();
+                while (Ch != '\n')
+                {
+                    l.NextSym();
+                }
+            }
         }
 
-        /// <summary>
-        /// Получение следующего символа
-        /// </summary>
+        
         // static public void NextCh()
         // {
         //     if (positionNow.charNumber >= lastInLine)
@@ -135,80 +142,113 @@ namespace Compiler
         //         Ch = positionNow.charNumber < line.Length ? line[positionNow.charNumber] : ' ';
         //     }
         // }
+        
+        /// <summary>
+        /// Получение следующего символа
+        /// </summary>
         static public void NextCh()
         {
-            if (positionNow.charNumber == lastInLine)
-            {
-                ListThisLine();
-                if (err.Count > 0)
-                {
-                    ListErrors();
-                }
-                ReadNextLine();
-
-                
-
-                positionNow.lineNumber++;
-                positionNow.charNumber = 0;
-            }
-            else 
+            if (positionNow.charNumber+1 < lastInLine)
             {
                 ++positionNow.charNumber;
             }
-            
-            if (positionNow.charNumber < line.Length)
+            else
             {
-                Ch = line[positionNow.charNumber];
+                ListLine();
+
+                if (File == null)
+                {
+                    return;
+                }
+
+                line = File.ReadLine();
+
+                positionNow.lineNumber++;
+                positionNow.charNumber = 0;
+
+                err = new List<Err>();
+            }
+
+            if (line == null)
+            {
+                File.Dispose();
+                File = null;
+
+                Console.WriteLine($"Компиляция завершена: ошибок — {errCount}!");
+
+                Ch = '\n'; // служебный символ конца файла
+            }
+            else
+            {
+                lastInLine = line.Length;
+
+                if (!string.IsNullOrEmpty(line))
+                {
+                    Ch = line[positionNow.charNumber];
+                }
+                else
+                {
+                    Ch = ' ';
+                }
             }
         }
 
-        /// <summary>
-        /// Вывод строки текущей строки в консоль
-        /// </summary>
-        private static void ListThisLine()
+        private static void ListLine()
         {
-            Console.WriteLine($"{positionNow.lineNumber,4}: {line}");
+            if (positionNow.lineNumber > 0)
+            {
+                Console.WriteLine($"{positionNow.lineNumber,4}: {line}");
+            }
+
+            if (err.Count > 0)
+            {
+                ListErrors();
+            }
         }
+
+        // /// <summary>
+        // /// Вывод строки текущей строки в консоль
+        // /// </summary>
+        // private static void ListThisLine()
+        // {
+        //     Console.WriteLine($"{positionNow.lineNumber,4}: {line}");
+        // }
+
+        // /// <summary>
+        // /// Получение следующей строки
+        // /// </summary>
+        // private static void ReadNextLine()
+        // {
+        //     if (File != null)
+        //     {
+        //         if (File.EndOfStream)
+        //         {
+        //             line = "\0";
+        //         }
+        //         else
+        //         {
+        //             line = File.ReadLine();
+        //         }
+        //         lastInLine = line.Length;
+        //         err = new List<Err>();
+
+        //         if (File.EndOfStream)
+        //         {
+        //             line = string.Empty;
+        //             lastInLine = 0;
+        //             Ch = '\0';
+        //             End();
+        //         }
+        //     }
+        // }
+
 
         /// <summary>
         /// Получение следующей строки
         /// </summary>
         private static void ReadNextLine()
         {
-            if (File != null)
-            {
-                if (File.EndOfStream)
-                {
-                    line = "\0";
-                }
-                else
-                {
-                    line = File.ReadLine();
-                }
-                lastInLine = line.Length;
-                err = new List<Err>();
-                
-                if (File.EndOfStream)
-                {
-                    line = string.Empty;
-                    lastInLine = 0;
-                    Ch = '\0';
-                    End();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Вывод сообщения о завершении в консоль
-        /// </summary>
-        static void End()
-        {
-            Console.WriteLine($"Компиляция завершена: ошибок — {errCount}!");
-            if (File != null)
-            {
-                File.Dispose();
-                File = null;
-            }
+            
         }
 
         /// <summary>
@@ -224,7 +264,7 @@ namespace Compiler
 
                 int spaces = item.errorPosition.charNumber + 6;
                 Console.WriteLine($"{marker.PadRight(spaces)}^ ошибка код {item.errorCode}");
-                
+
                 string errorMessage = GetErrorMessage(item.errorCode);
                 Console.WriteLine($"****** {errorMessage}");
             }
@@ -365,6 +405,7 @@ namespace Compiler
                 case 306: return "присваиваемое значение выходит за границы";
                 case 307: return "выражение для элемента множества выходит за пределы";
                 case 308: return "выражение выходит за допустимые пределы";
+                case 309: return "ожидается конец файла";
                 default: return "неизвестная ошибка";
             }
         }
