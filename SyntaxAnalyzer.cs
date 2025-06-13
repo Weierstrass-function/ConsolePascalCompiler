@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Metadata;
 
 namespace Compiler
 {
@@ -8,6 +9,34 @@ namespace Compiler
     {
         private LexicalAnalyzer lexer;
         private byte currentSymbol;
+
+        /// <summary>
+        /// Необязательный символ
+        /// </summary>
+        /// <param name="symbol"></param>
+        private void OptionalSymbol(byte expected)
+        {
+            if (currentSymbol == expected)
+            {
+                currentSymbol = lexer.NextSym();
+            }
+        }
+
+        /// <summary>
+        /// Обязательный символ
+        /// </summary>
+        /// <param name="symbol"></param>
+        private void RequiredSymbol(byte expected)
+        {
+            if (currentSymbol == expected)
+            {
+                currentSymbol = lexer.NextSym();
+            }
+            else
+            {
+                InputOutput.Error(expected, lexer.token);
+            }
+        }
 
         public SyntaxAnalyzer(LexicalAnalyzer lexicalAnalyzer)
         {
@@ -17,32 +46,23 @@ namespace Compiler
         public void Analyze()
         {
             currentSymbol = lexer.NextSym();
-            Program();
-            
-            if (currentSymbol != LexicalAnalyzer.eof)
+            Program();       
+            RequiredSymbol(LexicalAnalyzer.eof);
+
+            while (currentSymbol != LexicalAnalyzer.eof)
             {
-                InputOutput.Error(309, lexer.token);
-                while (currentSymbol != LexicalAnalyzer.eof)
-                {
-                    currentSymbol = lexer.NextSym();
-                }
+                currentSymbol = lexer.NextSym();
             }
+
+            InputOutput.EndMess();
         }
 
         // 'program' <ident> ['(' <ident> {, <ident>} ')' ];' <Block> '.'
         void Program()
         {
-            if (currentSymbol != LexicalAnalyzer.programsy)
-            {
-                InputOutput.Error(3, lexer.token);
-                return;
-            }
-            else
-            {
-                currentSymbol = lexer.NextSym();
-            }
-            
-            Ident();
+            RequiredSymbol(LexicalAnalyzer.programsy);
+
+            RequiredSymbol(LexicalAnalyzer.ident);
 
             // ['(' <ident> {, <ident>} ')' ]
             if (currentSymbol == LexicalAnalyzer.leftpar)
@@ -61,49 +81,21 @@ namespace Compiler
                 }
             }
 
-            // ';'
-            if (currentSymbol != LexicalAnalyzer.semicolon)
-            {
-                InputOutput.Error(14, lexer.token);
-            }
-            else
-            {
-                currentSymbol = lexer.NextSym();
-            }
+            RequiredSymbol(LexicalAnalyzer.semicolon);
 
             Block();
 
-            // '.'
-            if (currentSymbol != LexicalAnalyzer.point)
-            {
-                InputOutput.Error(61, lexer.token);
-            }
-            else
-            {
-                currentSymbol = lexer.NextSym();
-            }
+            RequiredSymbol(LexicalAnalyzer.point);
         }
 
         // <какой-то символ> <ident> {, <ident>}
         void IdentList()
         {
-            Ident();
+            RequiredSymbol(LexicalAnalyzer.ident);
             while (currentSymbol == LexicalAnalyzer.comma)
             {
                 currentSymbol = lexer.NextSym();
-                Ident();
-            }
-        }
-
-        void Ident()
-        {
-            if (currentSymbol == LexicalAnalyzer.ident)
-            {
-                currentSymbol = lexer.NextSym();
-            }
-            else
-            {
-                InputOutput.Error(2, lexer.token);
+                RequiredSymbol(LexicalAnalyzer.ident);
             }
         }
 

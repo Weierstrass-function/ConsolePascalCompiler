@@ -80,8 +80,9 @@ namespace Compiler
         /// </summary>
         static public void NextCh()
         {
-            if (positionNow.charNumber+1 < lastInLine)
+            if (positionNow.charNumber < lastInLine)
             {
+                Ch = line[positionNow.charNumber];
                 ++positionNow.charNumber;
             }
             else
@@ -94,48 +95,42 @@ namespace Compiler
                 }
 
                 line = File.ReadLine();
-
                 positionNow.lineNumber++;
                 positionNow.charNumber = 0;
 
-                err = new List<Err>();
-            }
-
-            if (line == null)
-            {
-                File.Dispose();
-                File = null;
-
-                ConsoleColor defaultColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("Компиляция завершена: ошибок — ");
-                if (errCount > 0)
+                if (line == null)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"{errCount}");
-                    Console.ForegroundColor = ConsoleColor.Green;
-                }
-                else
-                {
-                    Console.WriteLine("нет");
-                }
-                Console.ForegroundColor = defaultColor;
+                    File.Dispose();
+                    File = null;
 
-                Ch = '\n'; // служебный символ конца файла
-            }
-            else
-            {
-                lastInLine = line.Length;
-
-                if (!string.IsNullOrEmpty(line))
-                {
-                    Ch = line[positionNow.charNumber];
+                    Ch = '\n'; // служебный символ конца файла
                 }
                 else
                 {
                     Ch = ' ';
+                    lastInLine = line.Length;
                 }
+
+                err = new List<Err>();
             }
+        }
+
+        static public void EndMess ()
+        {
+            ConsoleColor defaultColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Компиляция завершена: ошибок — ");
+            if (errCount > 0)
+            {
+               Console.ForegroundColor = ConsoleColor.Red;
+               Console.WriteLine($"{errCount}");
+               Console.ForegroundColor = ConsoleColor.Green;
+            }
+            else
+            {
+               Console.WriteLine("нет");
+            }
+            Console.ForegroundColor = defaultColor;
         }
 
         private static void ListLine()
@@ -172,7 +167,7 @@ namespace Compiler
 
                 string marker = string.Format("**{0:D2}**", errCount);
 
-                int spaces = item.errorPosition.charNumber + 6;
+                int spaces = item.errorPosition.charNumber + 6 + 1;
                 Console.WriteLine($"{marker.PadRight(spaces)}^ ошибка код {item.errorCode}");
 
                 string errorMessage = GetErrorMessage(item.errorCode);
