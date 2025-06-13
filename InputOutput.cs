@@ -120,6 +120,9 @@ namespace Compiler
                 {
                     l.NextSym();
                 }
+
+                // SyntaxAnalyzer s = new SyntaxAnalyzer(new LexicalAnalyzer());
+                // s.Analyze();
             }
         }
 
@@ -256,6 +259,8 @@ namespace Compiler
         /// </summary>
         static void ListErrors()
         {
+            ConsoleColor defaultColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
             foreach (Err item in err)
             {
                 ++errCount;
@@ -268,6 +273,7 @@ namespace Compiler
                 string errorMessage = GetErrorMessage(item.errorCode);
                 Console.WriteLine($"****** {errorMessage}");
             }
+            Console.ForegroundColor = defaultColor;
         }
 
         /// <summary>
