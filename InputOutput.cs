@@ -177,7 +177,20 @@ namespace Compiler
                 File.Dispose();
                 File = null;
 
-                Console.WriteLine($"Компиляция завершена: ошибок — {errCount}!");
+                ConsoleColor defaultColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write("Компиляция завершена: ошибок — ");
+                if (errCount > 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"{errCount}");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+                else
+                {
+                    Console.WriteLine("нет");
+                }
+                Console.ForegroundColor = defaultColor;
 
                 Ch = '\n'; // служебный символ конца файла
             }
