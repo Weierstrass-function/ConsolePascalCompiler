@@ -167,7 +167,7 @@ namespace Compiler
 
                 string marker = string.Format("**{0:D2}**", errCount);
 
-                int spaces = item.errorPosition.charNumber + 6 + 1;
+                int spaces = item.errorPosition.charNumber + 5;
                 Console.WriteLine($"{marker.PadRight(spaces)}^ ошибка код {item.errorCode}");
 
                 string errorMessage = GetErrorMessage(item.errorCode);
