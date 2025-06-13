@@ -40,36 +40,6 @@ namespace Compiler
         static StreamReader? File = null;
         static uint errCount = 0;
 
-        // /// <summary>
-        // /// Установка файла для компиляции
-        // /// </summary>
-        // /// <param name="filePath">Путь к файлу</param>
-        // public static void SetFile(string filePath)
-        // {
-        //     try
-        //     {
-        //         if (!System.IO.File.Exists(filePath))
-        //         {
-        //             Console.WriteLine("Файл не найден: " + filePath);
-        //             return;
-        //         }
-
-        //         File = new StreamReader(filePath);
-        //         line = File.ReadLine() ?? string.Empty;
-        //         lastInLine = line.Length;
-        //         err = new List<Err>();
-        //         positionNow = new TextPosition(1, 0); // Reset position to first line
-        //         Ch = line.Length > 0 ? line[0] : ' ';
-        //     }
-        //     catch (UnauthorizedAccessException ex)
-        //     {
-        //         Console.WriteLine("Нет доступа к файлу: " + ex.Message);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine("Ошибка: " + ex.Message);
-        //     }
-        // }
         public static void ReadFile(string filePath)
         {
            try
@@ -81,28 +51,6 @@ namespace Compiler
                 }
 
                 File = new StreamReader(filePath);
-                
-                //line = File.ReadLine();
-
-                // Сохранение длины строки
-                //lastInLine = line.Length;
-                
-                //err = new List<Err>();
-                
-                //positionNow = new TextPosition(1, 0);
-                
-                // Получение первого символа или пробела, если строка пуста
-                // if (line.Length > 0)
-                // {
-                //     Ch = line[0];
-                // }
-                // else 
-                // {
-                //     Ch = ' ';
-                // }
-                
-                // SyntaxAnalyzer s = new SyntaxAnalyzer(new LexicalAnalyzer());
-                // s.Analyze();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -125,26 +73,6 @@ namespace Compiler
                 // s.Analyze();
             }
         }
-
-        
-        // static public void NextCh()
-        // {
-        //     if (positionNow.charNumber >= lastInLine)
-        //     {
-        //         ListThisLine();
-        //         if (err.Count > 0)
-        //             ListErrors();
-        //         ReadNextLine();
-        //         positionNow.lineNumber++;
-        //         positionNow.charNumber = 0;
-        //         Ch = line.Length > 0 ? line[0] : '\0';
-        //     }
-        //     else
-        //     {
-        //         positionNow.charNumber++;
-        //         Ch = positionNow.charNumber < line.Length ? line[positionNow.charNumber] : ' ';
-        //     }
-        // }
         
         /// <summary>
         /// Получение следующего символа
@@ -221,43 +149,6 @@ namespace Compiler
                 ListErrors();
             }
         }
-
-        // /// <summary>
-        // /// Вывод строки текущей строки в консоль
-        // /// </summary>
-        // private static void ListThisLine()
-        // {
-        //     Console.WriteLine($"{positionNow.lineNumber,4}: {line}");
-        // }
-
-        // /// <summary>
-        // /// Получение следующей строки
-        // /// </summary>
-        // private static void ReadNextLine()
-        // {
-        //     if (File != null)
-        //     {
-        //         if (File.EndOfStream)
-        //         {
-        //             line = "\0";
-        //         }
-        //         else
-        //         {
-        //             line = File.ReadLine();
-        //         }
-        //         lastInLine = line.Length;
-        //         err = new List<Err>();
-
-        //         if (File.EndOfStream)
-        //         {
-        //             line = string.Empty;
-        //             lastInLine = 0;
-        //             Ch = '\0';
-        //             End();
-        //         }
-        //     }
-        // }
-
 
         /// <summary>
         /// Получение следующей строки
