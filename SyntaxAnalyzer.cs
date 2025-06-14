@@ -38,6 +38,7 @@ namespace Compiler
 
                 if (currentSymbol == LexicalAnalyzer.eof)
                 {
+                    InputOutput.ListErrors();
                     InputOutput.End();
                 }
             }

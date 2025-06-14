@@ -90,8 +90,6 @@ namespace Compiler
                 }
 
                 line = File.ReadLine();
-                positionNow.lineNumber++;
-                positionNow.charNumber = 0;
 
                 if (line == null)
                 {
@@ -100,13 +98,14 @@ namespace Compiler
 
                     Ch = '\0'; // служебный символ конца файла
                     lastInLine = 0;
-                    return;
                 }
                 else
                 {
                     lastInLine = line.Length;
                 }
 
+                positionNow.lineNumber++;
+                positionNow.charNumber = 0;
                 err = new List<Err>();
             }
 
@@ -115,7 +114,7 @@ namespace Compiler
                 Ch = line[positionNow.charNumber];
                 ++positionNow.charNumber;
             }
-            else
+            else if (Ch != '\0')
             {
                 Ch = '\n';
             }
@@ -157,7 +156,7 @@ namespace Compiler
         /// <summary>
         /// Вывод ошибок в консоль
         /// </summary>
-        static void ListErrors()
+        static public void ListErrors()
         {
             ConsoleColor defaultColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
