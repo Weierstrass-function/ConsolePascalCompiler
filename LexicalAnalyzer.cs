@@ -446,7 +446,7 @@ namespace Compiler
                     break;
 
                 default:
-                    InputOutput.Error(6, InputOutput.positionNow);
+                    InputOutput.Error(0, InputOutput.positionNow);
                     InputOutput.NextCh();
                     symbol = 0;
                     WriteSymbolToFile();
