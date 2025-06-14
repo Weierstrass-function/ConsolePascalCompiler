@@ -103,11 +103,12 @@ namespace Compiler
                     File.Dispose();
                     File = null;
 
-                    Ch = '\n'; // служебный символ конца файла
+                    Ch = '\0'; // служебный символ конца файла
+                    lastInLine = 0;
                 }
                 else
                 {
-                    Ch = ' ';
+                    Ch = '\n';
                     lastInLine = line.Length;
                 }
 
@@ -115,7 +116,7 @@ namespace Compiler
             }
         }
 
-        static public void EndMess ()
+        static public void End ()
         {
             ConsoleColor defaultColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Green;
@@ -131,6 +132,8 @@ namespace Compiler
                Console.WriteLine("нет");
             }
             Console.ForegroundColor = defaultColor;
+
+            Environment.Exit(0);
         }
 
         private static void ListLine()
@@ -144,14 +147,6 @@ namespace Compiler
             {
                 ListErrors();
             }
-        }
-
-        /// <summary>
-        /// Получение следующей строки
-        /// </summary>
-        private static void ReadNextLine()
-        {
-            
         }
 
         /// <summary>

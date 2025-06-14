@@ -35,6 +35,11 @@ namespace Compiler
             else
             {
                 InputOutput.Error(expected, lexer.token);
+
+                if (currentSymbol == LexicalAnalyzer.eof)
+                {
+                    InputOutput.End();
+                }
             }
         }
 
@@ -54,14 +59,14 @@ namespace Compiler
                 currentSymbol = lexer.NextSym();
             }
 
-            InputOutput.EndMess();
+            InputOutput.End();
         }
 
+        
         // 'program' <ident> ['(' <ident> {, <ident>} ')' ];' <Block> '.'
         void Program()
         {
             RequiredSymbol(LexicalAnalyzer.programsy);
-
             RequiredSymbol(LexicalAnalyzer.ident);
 
             // ['(' <ident> {, <ident>} ')' ]
@@ -82,9 +87,7 @@ namespace Compiler
             }
 
             RequiredSymbol(LexicalAnalyzer.semicolon);
-
             Block();
-
             RequiredSymbol(LexicalAnalyzer.point);
         }
 
@@ -159,14 +162,14 @@ namespace Compiler
 
             ParseCompoundStatement();
 
-            if (currentSymbol == LexicalAnalyzer.endsy)
-            {
-                currentSymbol = lexer.NextSym();
-            }
-            else
-            {
-                InputOutput.Error(13, lexer.token);
-            }
+        if (currentSymbol == LexicalAnalyzer.endsy)
+        {
+            currentSymbol = lexer.NextSym();
+        }
+        else
+        {
+            InputOutput.Error(13, lexer.token);
+        }
         }
 
         // void ParseTypeDeclarations()
@@ -307,14 +310,7 @@ namespace Compiler
             {
                 IdentList();
 
-                if (currentSymbol != LexicalAnalyzer.colon)
-                {
-                    InputOutput.Error(5, lexer.token);
-                }
-                else
-                {
-                    currentSymbol = lexer.NextSym();
-                }
+                RequiredSymbol(LexicalAnalyzer.colon);
 
                 Type();
 

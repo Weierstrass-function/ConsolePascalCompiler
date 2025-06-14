@@ -114,12 +114,14 @@ namespace Compiler
         /// <returns>Код символа</returns>
         public byte NextSym()
         {
-            while (InputOutput.Ch == ' ' || InputOutput.Ch == '\t')
+            while (InputOutput.Ch == ' ' || 
+                InputOutput.Ch == '\t' || 
+                InputOutput.Ch == '\n')
             {
                 InputOutput.NextCh();
             } 
             
-            if (InputOutput.Ch == '\n')
+            if (InputOutput.Ch == '\0')
             {
                 return eof;
             }
@@ -248,7 +250,8 @@ namespace Compiler
                     // char prevChar = InputOutput.Ch;
                     // string str = "";
 
-                    while (InputOutput.Ch != '\0')
+                    while (InputOutput.Ch != '\n' &&
+                        InputOutput.Ch != '\0')
                     {    
                         if (InputOutput.Ch == '\'')
                         {
@@ -269,7 +272,7 @@ namespace Compiler
                         }
                     }
 
-                    if (InputOutput.Ch == '\0')
+                    if (InputOutput.Ch == '\n')
                     {
                         InputOutput.Error(84, InputOutput.positionNow);
                     }
