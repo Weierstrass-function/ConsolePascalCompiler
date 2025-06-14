@@ -98,14 +98,15 @@ namespace Compiler
 
                     Ch = '\0'; // служебный символ конца файла
                     lastInLine = 0;
+                    positionNow.charNumber++;
                 }
                 else
                 {
+                    positionNow.charNumber = 0;
                     lastInLine = line.Length;
                 }
 
                 positionNow.lineNumber++;
-                positionNow.charNumber = 0;
                 err = new List<Err>();
             }
 
