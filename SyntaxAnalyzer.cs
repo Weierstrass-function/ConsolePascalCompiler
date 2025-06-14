@@ -14,7 +14,7 @@ namespace Compiler
         /// Необязательный символ
         /// </summary>
         /// <param name="symbol"></param>
-        private void OptionalSymbol(byte expected)
+        private void OptionalTerminal(byte expected)
         {
             if (currentSymbol == expected)
             {
@@ -26,7 +26,7 @@ namespace Compiler
         /// Обязательный символ
         /// </summary>
         /// <param name="symbol"></param>
-        private void RequiredSymbol(byte expected)
+        private void RequiredTerminal(byte expected)
         {
             if (currentSymbol == expected)
             {
@@ -52,7 +52,7 @@ namespace Compiler
         {
             currentSymbol = lexer.NextSym();
             Program();       
-            RequiredSymbol(LexicalAnalyzer.eof);
+            RequiredTerminal(LexicalAnalyzer.eof);
 
             while (currentSymbol != LexicalAnalyzer.eof)
             {
@@ -66,8 +66,8 @@ namespace Compiler
         // 'program' <ident> ['(' <ident> {, <ident>} ')' ];' <Block> '.'
         void Program()
         {
-            RequiredSymbol(LexicalAnalyzer.programsy);
-            RequiredSymbol(LexicalAnalyzer.ident);
+            RequiredTerminal(LexicalAnalyzer.programsy);
+            RequiredTerminal(LexicalAnalyzer.ident);
 
             // ['(' <ident> {, <ident>} ')' ]
             if (currentSymbol == LexicalAnalyzer.leftpar)
@@ -86,19 +86,19 @@ namespace Compiler
                 }
             }
 
-            RequiredSymbol(LexicalAnalyzer.semicolon);
+            RequiredTerminal(LexicalAnalyzer.semicolon);
             Block();
-            RequiredSymbol(LexicalAnalyzer.point);
+            RequiredTerminal(LexicalAnalyzer.point);
         }
 
         // <какой-то символ> <ident> {, <ident>}
         void IdentList()
         {
-            RequiredSymbol(LexicalAnalyzer.ident);
+            RequiredTerminal(LexicalAnalyzer.ident);
             while (currentSymbol == LexicalAnalyzer.comma)
             {
                 currentSymbol = lexer.NextSym();
-                RequiredSymbol(LexicalAnalyzer.ident);
+                RequiredTerminal(LexicalAnalyzer.ident);
             }
         }
 
@@ -151,25 +151,8 @@ namespace Compiler
 
             // <раздел операторов> ::= <составной оператор>
             // <составной оператор> ::= begin <оператор> {; <оператор>} end
-            if (currentSymbol == LexicalAnalyzer.beginsy)
-            {
-                currentSymbol = lexer.NextSym();
-            }
-            else
-            {
-                InputOutput.Error(17, lexer.token);
-            }
-
-            ParseCompoundStatement();
-
-        if (currentSymbol == LexicalAnalyzer.endsy)
-        {
-            currentSymbol = lexer.NextSym();
-        }
-        else
-        {
-            InputOutput.Error(13, lexer.token);
-        }
+            RequiredTerminal(LexicalAnalyzer.beginsy);
+            CompoundStatement();
         }
 
         // void ParseTypeDeclarations()
@@ -310,7 +293,7 @@ namespace Compiler
             {
                 IdentList();
 
-                RequiredSymbol(LexicalAnalyzer.colon);
+                RequiredTerminal(LexicalAnalyzer.colon);
 
                 Type();
 
@@ -608,7 +591,7 @@ namespace Compiler
             }
         }
 
-        void ParseCompoundStatement()
+        void CompoundStatement()
         {
             // <оператор> {; <оператор>}
             Statement();
@@ -616,7 +599,9 @@ namespace Compiler
             {
                 currentSymbol = lexer.NextSym();
                 Statement();
-            }         
+            }
+
+            RequiredTerminal(LexicalAnalyzer.endsy);
         }
 
         // все, далее БНФ абсолютно не читаемы и бесполезны
