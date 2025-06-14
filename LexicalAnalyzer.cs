@@ -121,10 +121,6 @@ namespace Compiler
                 InputOutput.NextCh();
             } 
             
-            if (InputOutput.Ch == '\0')
-            {
-                return eof;
-            }
 
             token.lineNumber = InputOutput.positionNow.lineNumber;
             token.charNumber = InputOutput.positionNow.charNumber;
@@ -132,6 +128,10 @@ namespace Compiler
            //сканировать символ
             switch (InputOutput.Ch)
             {
+                case '\0':
+                    symbol = eof;
+                    break;
+
                 // case <идентификатор или ключевое слово> :
                 case char c when (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'):
                     string name = "";
