@@ -80,12 +80,7 @@ namespace Compiler
         /// </summary>
         static public void NextCh()
         {
-            if (positionNow.charNumber < lastInLine)
-            {
-                Ch = line[positionNow.charNumber];
-                ++positionNow.charNumber;
-            }
-            else
+            if (Ch == '\n')
             {
                 ListLine();
 
@@ -105,14 +100,24 @@ namespace Compiler
 
                     Ch = '\0'; // служебный символ конца файла
                     lastInLine = 0;
+                    return;
                 }
                 else
                 {
-                    Ch = '\n';
                     lastInLine = line.Length;
                 }
 
                 err = new List<Err>();
+            }
+
+            if (positionNow.charNumber < lastInLine)
+            {
+                Ch = line[positionNow.charNumber];
+                ++positionNow.charNumber;
+            }
+            else
+            {
+                Ch = '\n';
             }
         }
 
@@ -215,7 +220,7 @@ namespace Compiler
                 case 84: return "незакрытый строковый литерал";           // stringc
                 case 100: return "использование имени не соответствует описанию"; // insy
                 case 101: return "имя описано повторно";                  // ofsy
-                case 104: return "имя не описано";                       // endsy
+                case 104: return "должно идти слово END";                 // endsy
                 case 113: return "должно идти слово BEGIN";              // beginsy
                 case 122: return "должно идти слово PROGRAM";            // programsy
 
