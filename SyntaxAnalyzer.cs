@@ -36,7 +36,11 @@ namespace Compiler
             {
                 InputOutput.Error(expected, lexer.token);
 
-                if (currentSymbol == LexicalAnalyzer.eof)
+                if (currentSymbol == 0)
+                {
+                    currentSymbol = lexer.NextSym();
+                }
+                else if (currentSymbol == LexicalAnalyzer.eof)
                 {
                     InputOutput.ListErrors();
                     InputOutput.End();
