@@ -65,7 +65,7 @@ namespace Compiler
             }
 
             InputOutput.End();
-        }
+        } 
 
         
         // 'program' <ident> ['(' <ident> {, <ident>} ')' ];' <Block> '.'

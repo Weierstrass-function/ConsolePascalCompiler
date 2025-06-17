@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Compiler
 {
@@ -114,346 +115,374 @@ namespace Compiler
         /// <returns>Код символа</returns>
         public byte NextSym()
         {
-            while (InputOutput.Ch == ' ' || 
-                InputOutput.Ch == '\t' || 
-                InputOutput.Ch == '\n')
+            bool skip;
+            do
             {
-                InputOutput.NextCh();
-            } 
-            
+                skip = false;
 
-            token.lineNumber = InputOutput.positionNow.lineNumber;
-            token.charNumber = InputOutput.positionNow.charNumber;
+                // while (InputOutput.Ch == ' ' || 
+                // InputOutput.Ch == '\t' || 
+                // InputOutput.Ch == '\n')
+                // {
+                //     InputOutput.NextCh();
+                // } 
+                
 
-           //сканировать символ
-            switch (InputOutput.Ch)
-            {
-                case '\0':
-                    symbol = eof;
-                    break;
+                token.lineNumber = InputOutput.positionNow.lineNumber;
+                token.charNumber = InputOutput.positionNow.charNumber;
 
-                // case <идентификатор или ключевое слово> :
-                case char c when (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'):
-                    string name = "";
-                    while ((InputOutput.Ch >= 'A' && InputOutput.Ch <= 'Z') || 
-                           (InputOutput.Ch >= 'a' && InputOutput.Ch <= 'z') ||
-                           (InputOutput.Ch >= '0' && InputOutput.Ch <= '9'))
-                    {
-                        name += InputOutput.Ch;
+                //сканировать символ
+                switch (InputOutput.Ch)
+                {
+                    case '\0':
+                        symbol = eof;
+                        break;
+
+                    // case <идентификатор или ключевое слово> :
+                    case char c when (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'):
+                        ParseIdent();
+                        break;
+
+                    // case <целая константа> | <вещественная константа> :
+                    case char c when (c >= '0' && c <= '9'):
+                        ParseNumConst();
+                        break;
+
+                    // case <символьная константа> :
+                    case '\'':
+                        ParseStringLiteralOrCharConst();
+                        break;
+
+                    // < | <= | <>
+                    case '<':
                         InputOutput.NextCh();
-                    }
-                    
-                    // Проверяем является ли слово ключевым
-                    bool isKeyword = false;
-                    foreach(var kvp in keywords.Kw)
-                    {
-                        if(kvp.Key == name.Length && kvp.Value.ContainsKey(name.ToLower()))
+                        if (InputOutput.Ch == '=')
                         {
-                            symbol = kvp.Value[name.ToLower()];
-                            isKeyword = true;
-                            break;
+                            symbol = laterequal; InputOutput.NextCh();
                         }
-                    }
-                    
-                    if(!isKeyword)
-                    {
-                        symbol = ident;
-                        addrName = name;
-                    }
-                    WriteSymbolToFile();
-                    break;
-
-                // case <целая константа> | <вещественная константа> :
-                case char c when (c >= '0' && c <= '9'):
-                    byte digit;
-                    Int16 maxint = Int16.MaxValue;
-                    nmb_int = 0;
-                    while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
-                    {
-                        digit = (byte)(InputOutput.Ch - '0');
-                        if (nmb_int < maxint / 10 ||
-                        (nmb_int == maxint / 10 &&
-                        digit <= maxint % 10))
-                            nmb_int = 10 * nmb_int + digit;
+                        else if (InputOutput.Ch == '>')
+                        {
+                            symbol = latergreater; InputOutput.NextCh(); // <> неравенство в Pascal
+                        }
                         else
+                            symbol = later;
+                        WriteSymbolToFile();
+                        break;
+                
+                    // > | >=
+                    case '>':
+                        InputOutput.NextCh();
+                        if (InputOutput.Ch == '=') 
                         {
-                            // константа превышает предел
-                            InputOutput.Error(203, InputOutput.positionNow);
-                            nmb_int = 0;
-                            while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9') InputOutput.NextCh();
+                            symbol = greaterequal; InputOutput.NextCh();
                         }
+                        else
+                            symbol = greater;
+                        WriteSymbolToFile();
+                        break;
+
+                    // : | :=
+                    case ':':
                         InputOutput.NextCh();
-                    }
-                    
-                    // проверка на вещественное число
-                    if (InputOutput.Ch == '.')
-                    {
-                        InputOutput.NextCh();
-                        if (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
+                        if (InputOutput.Ch == '=')
                         {
-                            nmb_float = nmb_int;
-                            float scale = 0.1f;
-                            while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
+                            symbol = assign; InputOutput.NextCh();
+                        }
+                        else
+                            symbol = colon;
+                        WriteSymbolToFile();
+                        break;
+
+                    case '+':
+                        symbol = plus;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
+                    case '-':
+                        symbol = minus;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
+
+                    case '*':
+                        InputOutput.NextCh();
+                        if (InputOutput.Ch == ')')
+                        {
+                            // Skip comment end
+                            symbol = rcomment;
+                            InputOutput.NextCh();
+                        }
+                        else
+                            symbol = star;
+                        WriteSymbolToFile();
+                        break;
+
+                    case '/':
+                        symbol = slash;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
+                    case '=':
+                        symbol = equal;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
+
+                    case '(':
+                        InputOutput.NextCh();
+                        if (InputOutput.Ch == '*')
+                        {
+                            InputOutput.NextCh();
+
+                            // Skip comment
+                            while (true)
                             {
-                                digit = (byte)(InputOutput.Ch - '0');
-                                nmb_float += digit * scale;
-                                scale *= 0.1f;
-                                InputOutput.NextCh();
-                            }
-                            
-                            // проверка на экспоненциальную форму
-                            if (InputOutput.Ch == 'E' || InputOutput.Ch == 'e')
-                            {
-                                InputOutput.NextCh();
-                                bool negative = false;
-                                if (InputOutput.Ch == '+') InputOutput.NextCh();
-                                else if (InputOutput.Ch == '-')
+                                if (InputOutput.Ch == '*')
                                 {
-                                    negative = true;
                                     InputOutput.NextCh();
-                                }
-                                
-                                if (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
-                                {
-                                    int exponent = 0;
-                                    while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
+                                    if (InputOutput.Ch == ')')
                                     {
-                                        exponent = exponent * 10 + (InputOutput.Ch - '0');
                                         InputOutput.NextCh();
+                                        symbol = NextSym();
+                                        break;
                                     }
-                                    if (negative) exponent = -exponent;
-                                    nmb_float *= (float)Math.Pow(10, exponent);
                                 }
                                 else
                                 {
-                                    InputOutput.Error(206, InputOutput.positionNow); // Ожидались цифры после E
-                                }
-                            }
-                            symbol = floatc;
-                        }
-                        else
-                        {
-                            symbol = intc;
-                            InputOutput.NextCh(); // пропуск точки
-                        }
-                    }
-                    else
-                    {
-                        symbol = intc;
-                    }
-                    WriteSymbolToFile();
-                    break;
-                   
-                // case <символьная константа> :
-                case '\'':
-                    InputOutput.NextCh();
-                    // char prevChar = InputOutput.Ch;
-                    // string str = "";
-
-                    while (InputOutput.Ch != '\n' &&
-                        InputOutput.Ch != '\0')
-                    {    
-                        if (InputOutput.Ch == '\'')
-                        {
-                            InputOutput.NextCh();
-                            if (InputOutput.Ch == '\'')
-                            {
-                                InputOutput.NextCh();
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            //str += InputOutput.Ch;
-                            InputOutput.NextCh();
-                        }
-                    }
-
-                    if (InputOutput.Ch == '\n')
-                    {
-                        InputOutput.Error(84, InputOutput.positionNow);
-                    }
-
-                    symbol = stringc;
-                    WriteSymbolToFile();
-
-                    break;
-
-                // < | <= | <>
-                case '<':
-                    InputOutput.NextCh();
-                    if (InputOutput.Ch == '=')
-                    {
-                        symbol = laterequal; InputOutput.NextCh();
-                    }
-                    else if (InputOutput.Ch == '>')
-                    {
-                        symbol = latergreater; InputOutput.NextCh(); // <> неравенство в Pascal
-                    }
-                    else
-                        symbol = later;
-                    WriteSymbolToFile();
-                    break;
-            
-                // > | >=
-                case '>':
-                    InputOutput.NextCh();
-                    if (InputOutput.Ch == '=') 
-                    {
-                        symbol = greaterequal; InputOutput.NextCh();
-                    }
-                    else
-                        symbol = greater;
-                    WriteSymbolToFile();
-                    break;
-
-                // : | :=
-                case ':':
-                    InputOutput.NextCh();
-                    if (InputOutput.Ch == '=')
-                    {
-                        symbol = assign; InputOutput.NextCh();
-                    }
-                    else
-                        symbol = colon;
-                    WriteSymbolToFile();
-                    break;
-
-                case '+':
-                    symbol = plus;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
-                case '-':
-                    symbol = minus;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
-
-                case '*':
-                    InputOutput.NextCh();
-                    if (InputOutput.Ch == ')')
-                    {
-                        // Skip comment end
-                        symbol = rcomment;
-                        InputOutput.NextCh();
-                    }
-                    else
-                        symbol = star;
-                    WriteSymbolToFile();
-                    break;
-
-                case '/':
-                    symbol = slash;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
-                case '=':
-                    symbol = equal;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
-
-                case '(':
-                    InputOutput.NextCh();
-                    if (InputOutput.Ch == '*')
-                    {
-                        InputOutput.NextCh();
-
-                        // Skip comment
-                        while (true)
-                        {
-                            if (InputOutput.Ch == '*')
-                            {
-                                InputOutput.NextCh();
-                                if (InputOutput.Ch == ')')
-                                {
                                     InputOutput.NextCh();
-                                    symbol = NextSym();
-                                    break;
                                 }
                             }
-                            else
-                            {
-                                InputOutput.NextCh();
-                            }
                         }
-                    }
-                    else
-                    {
-                        symbol = leftpar;
-                        WriteSymbolToFile();
-                    }
-                    break;
+                        else
+                        {
+                            symbol = leftpar;
+                            WriteSymbolToFile();
+                        }
+                        break;
 
-                case ')':
-                    symbol = rightpar;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
-
-                case '{':
-                    // Пропуск комментария
-                    while (InputOutput.Ch != '}')
-                    {
+                    case ')':
+                        symbol = rightpar;
                         InputOutput.NextCh();
-                    }
+                        WriteSymbolToFile();
+                        break;
 
-                    InputOutput.NextCh();
+                    case '{':
+                        // Пропуск комментария
+                        while (InputOutput.Ch != '}')
+                        {
+                            InputOutput.NextCh();
+                        }
 
-                    symbol = NextSym();
-                    break;
+                        InputOutput.NextCh();
 
-                case '[':
-                    symbol = lbracket;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
-                case ']':
-                    symbol = rbracket;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
-                case ',':
-                    symbol = comma;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
-                case '^':
-                    symbol = arrow;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
+                        symbol = NextSym();
+                        break;
 
-                case ';':
-                    symbol = semicolon;
-                    InputOutput.NextCh();
-                    WriteSymbolToFile();
-                    break;
+                    case '[':
+                        symbol = lbracket;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
+                    case ']':
+                        symbol = rbracket;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
+                    case ',':
+                        symbol = comma;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
+                    case '^':
+                        symbol = arrow;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
 
-                // . | ..
-                case '.':
-                    InputOutput.NextCh();
-                    if (InputOutput.Ch == '.')
-                    {
-                        symbol = twopoints; InputOutput.NextCh();
-                    }
-                    else symbol = point;
-                    WriteSymbolToFile();
-                    break;
+                    case ';':
+                        symbol = semicolon;
+                        InputOutput.NextCh();
+                        WriteSymbolToFile();
+                        break;
 
-                default:
-                    InputOutput.Error(0, InputOutput.positionNow);
-                    InputOutput.NextCh();
-                    symbol = 0;
-                    WriteSymbolToFile();
-                    break;
-            }
+                    // . | ..
+                    case '.':
+                        InputOutput.NextCh();
+                        if (InputOutput.Ch == '.')
+                        {
+                            symbol = twopoints; InputOutput.NextCh();
+                        }
+                        else symbol = point;
+                        WriteSymbolToFile();
+                        break;
+
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                        InputOutput.NextCh();
+                        skip = true;
+                        break;
+
+                    default:
+                        InputOutput.Error(0, InputOutput.positionNow);
+                        InputOutput.NextCh();
+                        symbol = 0;
+                        WriteSymbolToFile();
+                        skip = true;
+                        break;
+                }
+            } while (skip);
 
             return symbol;
+        }
+
+        private void ParseNumConst()
+        {
+            byte digit;
+            Int16 maxint = Int16.MaxValue;
+            nmb_int = 0;
+            while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
+            {
+                digit = (byte)(InputOutput.Ch - '0');
+                if (nmb_int < maxint / 10 ||
+                (nmb_int == maxint / 10 &&
+                digit <= maxint % 10))
+                    nmb_int = 10 * nmb_int + digit;
+                else
+                {
+                    // константа превышает предел
+                    InputOutput.Error(203, InputOutput.positionNow);
+                    nmb_int = 0;
+                    while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9') InputOutput.NextCh();
+                }
+                InputOutput.NextCh();
+            }
+
+            // проверка на вещественное число
+            if (InputOutput.Ch == '.')
+            {
+                InputOutput.NextCh();
+                if (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
+                {
+                    nmb_float = nmb_int;
+                    float scale = 0.1f;
+                    while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
+                    {
+                        digit = (byte)(InputOutput.Ch - '0');
+                        nmb_float += digit * scale;
+                        scale *= 0.1f;
+                        InputOutput.NextCh();
+                    }
+
+                    // проверка на экспоненциальную форму
+                    if (InputOutput.Ch == 'E' || InputOutput.Ch == 'e')
+                    {
+                        InputOutput.NextCh();
+                        bool negative = false;
+                        if (InputOutput.Ch == '+') InputOutput.NextCh();
+                        else if (InputOutput.Ch == '-')
+                        {
+                            negative = true;
+                            InputOutput.NextCh();
+                        }
+
+                        if (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
+                        {
+                            int exponent = 0;
+                            while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9')
+                            {
+                                exponent = exponent * 10 + (InputOutput.Ch - '0');
+                                InputOutput.NextCh();
+                            }
+                            if (negative) exponent = -exponent;
+                            nmb_float *= (float)Math.Pow(10, exponent);
+                        }
+                        else
+                        {
+                            InputOutput.Error(206, InputOutput.positionNow); // Ожидались цифры после E
+                        }
+                    }
+                    symbol = floatc;
+                }
+                else
+                {
+                    symbol = intc;
+                    InputOutput.NextCh(); // пропуск точки
+                }
+            }
+            else
+            {
+                symbol = intc;
+            }
+            WriteSymbolToFile();
+        }
+
+        private void ParseStringLiteralOrCharConst()
+        {
+            InputOutput.NextCh();
+            // char prevChar = InputOutput.Ch;
+            // string str = "";
+
+            while (InputOutput.Ch != '\n' &&
+                InputOutput.Ch != '\0')
+            {
+                if (InputOutput.Ch == '\'')
+                {
+                    InputOutput.NextCh();
+                    if (InputOutput.Ch == '\'')
+                    {
+                        InputOutput.NextCh();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    //str += InputOutput.Ch;
+                    InputOutput.NextCh();
+                }
+            }
+
+            if (InputOutput.Ch == '\n')
+            {
+                InputOutput.Error(84, InputOutput.positionNow);
+            }
+
+            symbol = stringc;
+            WriteSymbolToFile();
+        }
+
+        private void ParseIdent()
+        {
+            string name = "";
+            while ((InputOutput.Ch >= 'A' && InputOutput.Ch <= 'Z') ||
+                (InputOutput.Ch >= 'a' && InputOutput.Ch <= 'z') ||
+                (InputOutput.Ch >= '0' && InputOutput.Ch <= '9'))
+            {
+                name += InputOutput.Ch;
+                InputOutput.NextCh();
+            }
+
+            // Проверяем является ли слово ключевым
+            bool isKeyword = false;
+            foreach (var kvp in keywords.Kw)
+            {
+                if (kvp.Key == name.Length && kvp.Value.ContainsKey(name.ToLower()))
+                {
+                    symbol = kvp.Value[name.ToLower()];
+                    isKeyword = true;
+                    break;
+                }
+            }
+
+            if (!isKeyword)
+            {
+                symbol = ident;
+                addrName = name;
+            }
+            WriteSymbolToFile();
         }
     }
 }
