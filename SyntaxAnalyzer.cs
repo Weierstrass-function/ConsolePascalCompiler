@@ -293,20 +293,9 @@ namespace Compiler
             do
             {
                 IdentList();
-
                 Accept(LexicalAnalyzer.colon);
-
                 Type();
-
-                // ';'
-                if (currentSymbol != LexicalAnalyzer.semicolon)
-                {
-                    InputOutput.Error(14, lexer.tokenPos);
-                }
-                else
-                {
-                    currentSymbol = lexer.NextSym();    
-                }
+                Accept(LexicalAnalyzer.semicolon);
             } while (currentSymbol == LexicalAnalyzer.ident);
         }
 
@@ -316,14 +305,7 @@ namespace Compiler
             {
                 currentSymbol = lexer.NextSym();
 
-                if (currentSymbol != LexicalAnalyzer.ident)
-                {
-                    InputOutput.Error(2, lexer.tokenPos);
-                }
-                else
-                {
-                    currentSymbol = lexer.NextSym();
-                }
+                Accept(LexicalAnalyzer.ident);
                 
                 //return;
             }
@@ -362,14 +344,7 @@ namespace Compiler
                                 OrdinalType();  
                             } while (currentSymbol == LexicalAnalyzer.comma);
 
-                            if (currentSymbol != LexicalAnalyzer.rbracket)  
-                            {
-                                InputOutput.Error(13, lexer.tokenPos);
-                            }
-                            else
-                            {
-                                currentSymbol = lexer.NextSym();
-                            }
+                            Accept(LexicalAnalyzer.rbracket);
                         }
                         
                         if (currentSymbol != LexicalAnalyzer.ofsy)
@@ -389,14 +364,7 @@ namespace Compiler
                     case LexicalAnalyzer.filesy:
                         currentSymbol = lexer.NextSym();
 
-                        if (currentSymbol != LexicalAnalyzer.ofsy)
-                        {
-                            InputOutput.Error(14, lexer.tokenPos);
-                        }
-                        else
-                        {
-                            currentSymbol = lexer.NextSym();
-                        }
+                        Accept(LexicalAnalyzer.ofsy);
 
                         Type();
 
@@ -406,14 +374,7 @@ namespace Compiler
                     case LexicalAnalyzer.setsy:
                         currentSymbol = lexer.NextSym();
 
-                        if (currentSymbol != LexicalAnalyzer.ofsy)
-                        {
-                            InputOutput.Error(14, lexer.tokenPos);
-                        }
-                        else
-                        {
-                            currentSymbol = lexer.NextSym();
-                        }
+                        Accept(LexicalAnalyzer.ofsy);
 
                         OrdinalType();
 
@@ -422,14 +383,7 @@ namespace Compiler
                     case LexicalAnalyzer.recordsy:
                         currentSymbol = lexer.NextSym();
                         FieldList();
-                        if (currentSymbol != LexicalAnalyzer.endsy)
-                        {
-                            InputOutput.Error(16, lexer.tokenPos);
-                        }
-                        else
-                        {
-                            currentSymbol = lexer.NextSym();
-                        }
+                        Accept(LexicalAnalyzer.endsy);
                         break;
 
                     default:
@@ -450,62 +404,18 @@ namespace Compiler
                     if (currentSymbol == LexicalAnalyzer.ident)
                     {
                         currentSymbol = lexer.NextSym();
-                        if (currentSymbol != LexicalAnalyzer.colon)
-                        {
-                            InputOutput.Error(5, lexer.tokenPos);
-                        }
-                        else
-                        {
-                            currentSymbol = lexer.NextSym();
-                        }
-
-                        if (currentSymbol != LexicalAnalyzer.ident)
-                        {
-                            InputOutput.Error(2, lexer.tokenPos);
-                        }
-                        else
-                        {
-                            currentSymbol = lexer.NextSym();
-                        }
-
-                        if (currentSymbol != LexicalAnalyzer.ofsy)
-                        {
-                            InputOutput.Error(8, lexer.tokenPos);
-                        }
-                        else
-                        {
-                            currentSymbol = lexer.NextSym();
-                        }
-
+                        Accept(LexicalAnalyzer.colon);
+                        Accept(LexicalAnalyzer.ident);
+                        Accept(LexicalAnalyzer.ofsy);
                         ConstantAndFields();
                     }
                 }
                 else
                 {
                     IdentList();
-
-                    if (currentSymbol != LexicalAnalyzer.colon)
-                    {
-                        InputOutput.Error(5, lexer.tokenPos);
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
-
-                    if (currentSymbol != LexicalAnalyzer.ident)
-                    {
-                        InputOutput.Error(2, lexer.tokenPos);
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
-
-                    if (currentSymbol == LexicalAnalyzer.semicolon)
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
+                    Accept(LexicalAnalyzer.colon);
+                    Accept(LexicalAnalyzer.ident);
+                    Accept(LexicalAnalyzer.semicolon);
                 }
             }
         }
@@ -518,34 +428,10 @@ namespace Compiler
                 Constant();
             } while (currentSymbol == LexicalAnalyzer.comma);
             
-            if (currentSymbol != LexicalAnalyzer.colon)
-            {
-                InputOutput.Error(5, lexer.tokenPos);
-            }
-            else
-            {
-                currentSymbol = lexer.NextSym();
-            }
-
-            if (currentSymbol != LexicalAnalyzer.leftpar)
-            {
-                InputOutput.Error(5, lexer.tokenPos);
-            }
-            else
-            {
-                currentSymbol = lexer.NextSym();
-            }
-
+            Accept(LexicalAnalyzer.colon);
+            Accept(LexicalAnalyzer.leftpar);
             FieldList();
-
-            if (currentSymbol != LexicalAnalyzer.rightpar)
-            {
-                InputOutput.Error(5, lexer.tokenPos);
-            }
-            else
-            {
-                currentSymbol = lexer.NextSym();
-            }
+            Accept(LexicalAnalyzer.rightpar);
         }
 
         void OrdinalType()
@@ -553,14 +439,7 @@ namespace Compiler
             if (currentSymbol == LexicalAnalyzer.leftpar)
             {
                 IdentList();
-                if (currentSymbol != LexicalAnalyzer.rightpar)
-                {
-                    InputOutput.Error(5, lexer.tokenPos);
-                }
-                else
-                {
-                    currentSymbol = lexer.NextSym();
-                }
+                Accept(LexicalAnalyzer.rightpar);
             }
             else
             {
@@ -577,16 +456,7 @@ namespace Compiler
                 else
                 {
                     Constant();
-
-                    if (currentSymbol != LexicalAnalyzer.twopoints)
-                    {
-                        InputOutput.Error(15, lexer.tokenPos);
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
-
+                    Accept(LexicalAnalyzer.twopoints);
                     Constant();
                 }
             }
@@ -621,20 +491,14 @@ namespace Compiler
                 // 'goto' <метка>
                 case LexicalAnalyzer.gotosy:
                     currentSymbol = lexer.NextSym();
-                    if (currentSymbol != LexicalAnalyzer.intc)
-                    {
-                        InputOutput.Error(15, lexer.tokenPos); // Ожидается целое
-                    }
+                    Accept(LexicalAnalyzer.intc);
                     break;
 
                 // 'while' <Expression> 'do' <Statement>
                 case LexicalAnalyzer.whilesy:
                     currentSymbol = lexer.NextSym();
                     Expression();
-                    if (currentSymbol != LexicalAnalyzer.dosy)
-                    {
-                        InputOutput.Error(54, lexer.tokenPos); // Ожидается 'do'
-                    }
+                    Accept(LexicalAnalyzer.dosy);
                     Statement();
                     break;
 
@@ -646,25 +510,14 @@ namespace Compiler
                         Statement();
                     } while (currentSymbol == LexicalAnalyzer.semicolon);
 
-                    if (currentSymbol != LexicalAnalyzer.endsy)
-                    {
-                        InputOutput.Error(13, lexer.tokenPos); // Ожидается 'end'
-                        //return;
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
+                    Accept(LexicalAnalyzer.endsy);
                     break;
 
                 // 'if' <Expression> 'then' <Statement>
                 case LexicalAnalyzer.ifsy:
                     currentSymbol = lexer.NextSym();
                     Expression();
-                    if (currentSymbol != LexicalAnalyzer.thensy)
-                    {
-                        InputOutput.Error(52, lexer.tokenPos); // Ожидается 'then'
-                    }
+                    Accept(LexicalAnalyzer.endsy);
                     Statement();
 
                     if (currentSymbol == LexicalAnalyzer.elsesy)
@@ -684,14 +537,7 @@ namespace Compiler
                         Variable();
                     } while (currentSymbol == LexicalAnalyzer.comma);
 
-                    if (currentSymbol != LexicalAnalyzer.dosy)
-                    {
-                        InputOutput.Error(21, lexer.tokenPos); // Ожидается 'do'
-                    }   
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }                    
+                    Accept(LexicalAnalyzer.dosy);
                     Statement();
                     break;
 
@@ -703,14 +549,7 @@ namespace Compiler
                         Statement();
                     } while (currentSymbol == LexicalAnalyzer.semicolon);
 
-                    if (currentSymbol != LexicalAnalyzer.untilsy)
-                    {
-                        InputOutput.Error(53, lexer.tokenPos); // Ожидается 'until'
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
+                    Accept(LexicalAnalyzer.untilsy);
                     Expression();
                     break;
                 
@@ -720,14 +559,7 @@ namespace Compiler
                     {
                         currentSymbol = lexer.NextSym();
                         ParameterList();
-                        if (currentSymbol != LexicalAnalyzer.rightpar)
-                        {
-                            InputOutput.Error(5, lexer.tokenPos); // Ожидается ')'
-                        }
-                        else
-                        {
-                            currentSymbol = lexer.NextSym();
-                        }
+                        Accept(LexicalAnalyzer.rightpar);
                     }
                     else
                     {
@@ -744,56 +576,22 @@ namespace Compiler
                 case LexicalAnalyzer.casesy:
                     currentSymbol = lexer.NextSym();
                     Expression();
-                    if (currentSymbol != LexicalAnalyzer.ofsy)
-                    {
-                        InputOutput.Error(8, lexer.tokenPos);
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
+                    Accept(LexicalAnalyzer.ofsy);
                     CaseList();
-                    if (currentSymbol != LexicalAnalyzer.endsy)
-                    {
-                        InputOutput.Error(13, lexer.tokenPos); // Ожидается 'end'
-                        //return;
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
-                    
+                    Accept(LexicalAnalyzer.endsy);
                     break;
 
                 // 'for' <variableIdentifier> ':=' <Expression> 'to' <Expression> 'do' <Statement>
                 case LexicalAnalyzer.forsy:
                     currentSymbol = lexer.NextSym();
-                    if (currentSymbol != LexicalAnalyzer.ident)
-                    {
-                        InputOutput.Error(9, lexer.tokenPos); // Ожидается идентификатор
-                        //return;
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
-
-                    if (currentSymbol != LexicalAnalyzer.assign)
-                    {
-                        InputOutput.Error(15, lexer.tokenPos); // Ожидается ':'
-                        //return;
-                    }
-                    else
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
-
+                    Accept(LexicalAnalyzer.ident);
+                    Accept(LexicalAnalyzer.assign);
                     Expression();
 
                     if (currentSymbol != LexicalAnalyzer.tosy &&
                         currentSymbol != LexicalAnalyzer.downtosy)
                     {
-                        InputOutput.Error(15, lexer.tokenPos); // Ожидается ':'
+                        //InputOutput.Error(15, lexer.tokenPos); // Ожидается ':'
                         //return;
                     }
                     else
@@ -802,17 +600,7 @@ namespace Compiler
                     }
 
                     Expression();
-
-                    if (currentSymbol != LexicalAnalyzer.dosy)
-                    {
-                        InputOutput.Error(21, lexer.tokenPos); // Ожидается 'do'
-                        //return;
-                    }
-                    else  
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }                    
-
+                    Accept(LexicalAnalyzer.dosy);                   
                     Statement();
 
                     break;
@@ -960,11 +748,7 @@ namespace Compiler
                     Constant();
                 }
 
-                if (currentSymbol != LexicalAnalyzer.colon)
-                {
-                    InputOutput.Error(14, lexer.tokenPos); // Ожидается ':'
-                    //return;
-                }
+                Accept(LexicalAnalyzer.colon);
                 currentSymbol = lexer.NextSym();
                 Statement();
 
@@ -979,11 +763,7 @@ namespace Compiler
                     Constant();
                 }
 
-                if (currentSymbol != LexicalAnalyzer.colon)
-                {
-                    InputOutput.Error(14, lexer.tokenPos); // Ожидается ':'
-                    //return;
-                }
+                Accept(LexicalAnalyzer.colon);
                 currentSymbol = lexer.NextSym();
                 Statement();
             }
@@ -1002,59 +782,38 @@ namespace Compiler
 
         void Variable()
         {
-            if (currentSymbol == LexicalAnalyzer.ident)
-            {
-                currentSymbol = lexer.NextSym();
+            Accept(LexicalAnalyzer.ident);
 
-                while (currentSymbol == LexicalAnalyzer.lbracket ||
-                       currentSymbol == LexicalAnalyzer.point ||
-                       currentSymbol == LexicalAnalyzer.arrow)
+            while (currentSymbol == LexicalAnalyzer.lbracket ||
+                    currentSymbol == LexicalAnalyzer.point ||
+                    currentSymbol == LexicalAnalyzer.arrow)
+            {
+                switch (currentSymbol)
                 {
-                    switch (currentSymbol)
-                    {
-                        // '[' <Expression> {',' <Expression>} ']'
-                        case LexicalAnalyzer.lbracket:
-                            currentSymbol = lexer.NextSym();
+                    // '[' <Expression> {',' <Expression>} ']'
+                    case LexicalAnalyzer.lbracket:
+                        currentSymbol = lexer.NextSym();
 
-                            do
-                            {
-                                Expression();
-                            } while (currentSymbol == LexicalAnalyzer.comma);
+                        do
+                        {
+                            Expression();
+                        } while (currentSymbol == LexicalAnalyzer.comma);
 
-                            if (currentSymbol != LexicalAnalyzer.rbracket)
-                            {
-                                InputOutput.Error(12, lexer.tokenPos); // Ожидается ']'
-                                //return;
-                            }
-                            else    
-                            {
-                                currentSymbol = lexer.NextSym();
-                            }
+                        Accept(LexicalAnalyzer.rbracket);
 
-                            break;
-                        
-                        // '.' <FieldIdentifier>
-                        case LexicalAnalyzer.point:
-                            currentSymbol = lexer.NextSym();
-
-                            if (currentSymbol != LexicalAnalyzer.ident)
-                            {
-                                InputOutput.Error(9, lexer.tokenPos); // Ожидается идентификатор
-                                //return;
-                            }
-                            break;
-                        
-                        // '^'
-                        case LexicalAnalyzer.arrow:
-                            currentSymbol = lexer.NextSym();
-                            break;
-                    }
+                        break;
+                    
+                    // '.' <FieldIdentifier>
+                    case LexicalAnalyzer.point:
+                        currentSymbol = lexer.NextSym();
+                        Accept(LexicalAnalyzer.ident);
+                        break;
+                    
+                    // '^'
+                    case LexicalAnalyzer.arrow:
+                        currentSymbol = lexer.NextSym();
+                        break;
                 }
-            }
-            else
-            {
-                InputOutput.Error(9, lexer.tokenPos); // Ожидается идентификатор
-                //return;
             }
         }
 
@@ -1139,18 +898,8 @@ namespace Compiler
                 // '(' <Expression> ')'
                 case LexicalAnalyzer.leftpar:
                     currentSymbol = lexer.NextSym();
-
                     Expression();
-
-                    if (currentSymbol != LexicalAnalyzer.rightpar)
-                    {
-                        InputOutput.Error(5, lexer.tokenPos); // Ожидается ')'
-                        //return;
-                    }
-                    else    
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
+                    Accept(LexicalAnalyzer.rightpar);
                     break;
 
                 // '[' [<Expression> {'..' <Expression>} {,<Expression> {'..' <Expression>}}] ']'
@@ -1168,15 +917,7 @@ namespace Compiler
                         }
                     } while (currentSymbol == LexicalAnalyzer.comma);
 
-                    if (currentSymbol != LexicalAnalyzer.rbracket)
-                    {
-                        InputOutput.Error(12, lexer.tokenPos); // Ожидается ']'
-                        //return;
-                    }
-                    else    
-                    {
-                        currentSymbol = lexer.NextSym();
-                    }
+                    Accept(LexicalAnalyzer.rbracket);
 
                     break;
 
@@ -1220,22 +961,14 @@ namespace Compiler
         {
             currentSymbol = lexer.NextSym();
             Expression();
-            if (currentSymbol != LexicalAnalyzer.rbracket)
-            {
-                InputOutput.Error(13, lexer.tokenPos); // Ожидается ']'
-                //return;
-            }
+            Accept(LexicalAnalyzer.rbracket);
             currentSymbol = lexer.NextSym();
         }
 
         void ParseRecordField()
         {
             currentSymbol = lexer.NextSym();
-            if (currentSymbol != LexicalAnalyzer.ident)
-            {
-                InputOutput.Error(9, lexer.tokenPos); // Ожидается идентификатор
-                //return;
-            }
+            Accept(LexicalAnalyzer.ident);
             currentSymbol = lexer.NextSym();
         }
 
