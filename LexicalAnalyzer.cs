@@ -41,6 +41,8 @@ namespace Compiler
             floatc = 82,	// вещественная константа
             intc = 15,	// целая константа
             charc = 83,	// символьная константа
+
+
             casesy = 31,
             elsesy = 32,
             filesy = 57,
@@ -83,7 +85,7 @@ namespace Compiler
         private StreamWriter symbolsFile;
 
         public byte symbol; // код символаwri
-        public TextPosition token; // позиция символа
+        public TextPosition tokenPos; // позиция символа
         string addrName; // адрес идентификатора в таблице имен
         int nmb_int; // значение целой константы
         float nmb_float; // значение вещественной константы
@@ -105,7 +107,7 @@ namespace Compiler
 
         private void WriteSymbolToFile()
         {
-            symbolsFile.WriteLine($"{token.lineNumber}: {symbol}");
+            symbolsFile.WriteLine($"{tokenPos.lineNumber}: {symbol}");
             symbolsFile.Flush();
         }
 
@@ -128,8 +130,8 @@ namespace Compiler
                 // } 
                 
 
-                token.lineNumber = InputOutput.positionNow.lineNumber;
-                token.charNumber = InputOutput.positionNow.charNumber;
+                tokenPos.lineNumber = InputOutput.positionNow.lineNumber;
+                tokenPos.charNumber = InputOutput.positionNow.charNumber;
 
                 //сканировать символ
                 switch (InputOutput.Ch)
@@ -465,7 +467,7 @@ namespace Compiler
                 InputOutput.NextCh();
             }
 
-            // Проверяем является ли слово ключевым
+            // Является ли слово ключевым
             bool isKeyword = false;
             foreach (var kvp in keywords.Kw)
             {
