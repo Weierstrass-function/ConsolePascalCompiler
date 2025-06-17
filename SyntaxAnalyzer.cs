@@ -76,15 +76,7 @@ namespace Compiler
                 currentSymbol = lexer.NextSym();
                 IdentList();
 
-                if (currentSymbol != LexicalAnalyzer.rightpar)
-                {
-                    InputOutput.Error(4, lexer.tokenPos);
-                    return;
-                }
-                else
-                {
-                    currentSymbol = lexer.NextSym();
-                }
+                Accept(LexicalAnalyzer.rightpar);
             }
 
             Accept(LexicalAnalyzer.semicolon);
@@ -301,17 +293,15 @@ namespace Compiler
 
         void Type()
         {
+            // ^
             if (currentSymbol == LexicalAnalyzer.arrow)
             {
                 currentSymbol = lexer.NextSym();
-
                 Accept(LexicalAnalyzer.ident);
-                
-                //return;
             }
 
             else if (currentSymbol == LexicalAnalyzer.ident ||
-                     currentSymbol == LexicalAnalyzer.lbracket ||
+                     currentSymbol == LexicalAnalyzer.leftpar ||
                      currentSymbol == LexicalAnalyzer.intc ||
                      currentSymbol == LexicalAnalyzer.floatc ||
                      currentSymbol == LexicalAnalyzer.charc)
@@ -387,7 +377,7 @@ namespace Compiler
                         break;
 
                     default:
-                        // ОШИБКУ!
+                        InputOutput.Error(2, lexer.tokenPos);
                         break;
                 }
             }
@@ -438,6 +428,7 @@ namespace Compiler
         {
             if (currentSymbol == LexicalAnalyzer.leftpar)
             {
+                currentSymbol = lexer.NextSym();
                 IdentList();
                 Accept(LexicalAnalyzer.rightpar);
             }
