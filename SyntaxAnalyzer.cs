@@ -66,7 +66,6 @@ namespace Compiler
             {
                 currentSymbol = lexer.NextSym();
                 IdentList();
-
                 Accept(LexicalAnalyzer.rightpar);
             }
 
@@ -115,11 +114,7 @@ namespace Compiler
 
             // <раздел переменных> ::= var <описание однотипных переменных> ;
             // {<описание однотипных переменных>;} | <пусто>
-            if (currentSymbol == LexicalAnalyzer.varsy)
-            {
-                currentSymbol = lexer.NextSym();
-                VarDeclarations();
-            }
+            VarDeclarations();
 
             // <раздел процедур и функций> ::= {<описание процедуры или функции> ;}
             // НЕ АНАЛИЗИРУЕТСЯ
@@ -135,151 +130,27 @@ namespace Compiler
 
             // <раздел операторов> ::= <составной оператор>
             // <составной оператор> ::= begin <оператор> {; <оператор>} end
-            Accept(LexicalAnalyzer.beginsy);
             CompoundStatement();
         }
 
-        // void ParseTypeDeclarations()
-        // {
-        //     while (currentSymbol == LexicalAnalyzer.ident)
-        //     {
-        //         // Имя типа
-        //         currentSymbol = lexer.NextSym();
-
-        //         if (currentSymbol != LexicalAnalyzer.equal)
-        //         {
-        //             InputOutput.Error(10, lexer.token); // Ожидается '='
-        //             //return;
-        //         }
-        //         currentSymbol = lexer.NextSym();
-
-        //         // Разбор определения типа
-        //         if (currentSymbol == LexicalAnalyzer.arraysy)
-        //         {
-        //             // Тип массива
-        //             currentSymbol = lexer.NextSym();
-
-        //             if (currentSymbol != LexicalAnalyzer.lbracket)
-        //             {
-        //                 InputOutput.Error(12, lexer.token); // Ожидается '['
-        //                 //return;
-        //             }
-        //             currentSymbol = lexer.NextSym();
-
-        //             // Разбор размерностей массива
-        //             do
-        //             {
-        //                 // Нижняя граница
-        //                 if (currentSymbol != LexicalAnalyzer.intc)
-        //                 {
-        //                     InputOutput.Error(18, lexer.token); // Ожидается индекс массива
-        //                     //return;
-        //                 }
-        //                 currentSymbol = lexer.NextSym();
-
-        //                 if (currentSymbol == LexicalAnalyzer.twopoints)
-        //                 {
-        //                     currentSymbol = lexer.NextSym();
-        //                     // Верхняя граница
-        //                     if (currentSymbol != LexicalAnalyzer.intc)
-        //                     {
-        //                         InputOutput.Error(18, lexer.token); // Ожидается индекс массива
-        //                         //return;
-        //                     }
-        //                     currentSymbol = lexer.NextSym();
-        //                 }
-
-        //                 if (currentSymbol == LexicalAnalyzer.comma)
-        //                     currentSymbol = lexer.NextSym();
-
-        //             } while (currentSymbol == LexicalAnalyzer.intc);
-
-        //             if (currentSymbol != LexicalAnalyzer.rbracket)
-        //             {
-        //                 InputOutput.Error(13, lexer.token); // Ожидается ']'
-        //                 //return;
-        //             }
-        //             currentSymbol = lexer.NextSym();
-
-        //             if (currentSymbol != LexicalAnalyzer.ofsy)
-        //             {
-        //                 InputOutput.Error(14, lexer.token); // Ожидается 'of'
-        //                 //return;
-        //             }
-        //             currentSymbol = lexer.NextSym();
-
-        //             // Базовый тип массива
-        //             if (currentSymbol != LexicalAnalyzer.ident)
-        //             {
-        //                 InputOutput.Error(9, lexer.token); // Ожидается идентификатор
-        //                 //return;
-        //             }
-        //             currentSymbol = lexer.NextSym();
-        //         }
-        //         else if (currentSymbol == LexicalAnalyzer.recordsy)
-        //         {
-        //             // Тип записи
-        //             currentSymbol = lexer.NextSym();
-
-        //             // Разбор полей записи
-        //             while (currentSymbol == LexicalAnalyzer.ident)
-        //             {
-        //                 // Имена полей
-        //                 do
-        //                 {
-        //                     currentSymbol = lexer.NextSym();
-        //                     if (currentSymbol == LexicalAnalyzer.comma)
-        //                         currentSymbol = lexer.NextSym();
-        //                 } while (currentSymbol == LexicalAnalyzer.ident);
-
-        //                 if (currentSymbol != LexicalAnalyzer.colon)
-        //                 {
-        //                     InputOutput.Error(15, lexer.token); // Ожидается ':'
-        //                     //return;
-        //                 }
-        //                 currentSymbol = lexer.NextSym();
-
-        //                 // Тип поля
-        //                 if (currentSymbol != LexicalAnalyzer.ident)
-        //                 {
-        //                     InputOutput.Error(9, lexer.token); // Ожидается идентификатор
-        //                     //return;
-        //                 }
-        //                 currentSymbol = lexer.NextSym();
-
-        //                 if (currentSymbol == LexicalAnalyzer.semicolon)
-        //                     currentSymbol = lexer.NextSym();
-        //             }
-
-        //             if (currentSymbol != LexicalAnalyzer.endsy)
-        //             {
-        //                 InputOutput.Error(16, lexer.token); // Ожидается 'end'
-        //                 //return;
-        //             }
-        //             currentSymbol = lexer.NextSym();
-        //         }
-        //         else if (currentSymbol == LexicalAnalyzer.ident)
-        //         {
-        //             // Псевдоним типа
-        //             currentSymbol = lexer.NextSym();
-        //         }
-
-        //         if (currentSymbol == LexicalAnalyzer.semicolon)
-        //             currentSymbol = lexer.NextSym();
-        //     }
-        // }
-
-
-        // 'var' <ident> {, <ident>} ':' <type> ';' {<ident> {, <ident>} ':' <type> ';'}
         void VarDeclarations()
         {
-            do
+            if (currentSymbol == LexicalAnalyzer.varsy)
             {
-                IdentList();
-                Accept(LexicalAnalyzer.colon);
-                Type();
-                Accept(LexicalAnalyzer.semicolon);
-            } while (currentSymbol == LexicalAnalyzer.ident);
+                currentSymbol = lexer.NextSym();
+                do
+                {
+                    VarDeclaration();   
+                    Accept(LexicalAnalyzer.semicolon);
+                } while (currentSymbol == LexicalAnalyzer.ident);
+            }
+        }
+
+        void VarDeclaration()
+        {
+            IdentList();
+            Accept(LexicalAnalyzer.colon);
+            Type();
         }
 
         void Type()
@@ -451,6 +322,7 @@ namespace Compiler
 
         void CompoundStatement()
         {
+            Accept(LexicalAnalyzer.beginsy);
             // <оператор> {; <оператор>}
             Statement();
             while (currentSymbol == LexicalAnalyzer.semicolon)
@@ -595,135 +467,6 @@ namespace Compiler
                 default:
                     break;
             }
-
-            // switch (currentSymbol)
-            // {
-            //     case LexicalAnalyzer.endsy:
-            //         //return;
-
-            //     // Variable
-            //     // FunctionalIdentifier
-            //     // ProcedureIdentifier
-            //     case LexicalAnalyzer.ident:
-            //         currentSymbol = lexer.NextSym();
-
-            //         // VariableIdentifier
-            //         // FieldIdentifier
-            //         switch (currentSymbol)
-            //         {
-            //             case LexicalAnalyzer.lbracket:
-            //                 Expression();
-
-            //                 currentSymbol = lexer.NextSym();
-            //                 if (currentSymbol != LexicalAnalyzer.rbracket)
-            //                 {
-            //                     InputOutput.Error(12, lexer.token); // Ожидается ']'
-            //                 }
-            //                 else
-            //                 {
-            //                     currentSymbol = lexer.NextSym();
-            //                 }
-            //                 break;
-            //         }
-
-
-            //         // Присваивание или вызов процедуры
-            //         currentSymbol = lexer.NextSym();
-
-            //         // Индекс массива или доступ к полю записи
-            //         while (currentSymbol == LexicalAnalyzer.lbracket || 
-            //                 currentSymbol == LexicalAnalyzer.point)
-            //         {
-            //             if (currentSymbol == LexicalAnalyzer.lbracket)
-            //             {
-            //                 // Индексация массива
-            //                 currentSymbol = lexer.NextSym();
-            //                 Expression();
-            //                 if (currentSymbol != LexicalAnalyzer.rbracket)
-            //                 {
-            //                     InputOutput.Error(13, lexer.token); // Ожидается ']'
-            //                     //return;
-            //                 }
-            //                 currentSymbol = lexer.NextSym();
-            //             }
-            //             else // point
-            //             {
-            //                 // Доступ к полю записи
-            //                 currentSymbol = lexer.NextSym();
-            //                 if (currentSymbol != LexicalAnalyzer.ident)
-            //                 {
-            //                     InputOutput.Error(9, lexer.token); // Ожидается идентификатор
-            //                     //return;
-            //                 }
-            //                 currentSymbol = lexer.NextSym();
-            //             }
-            //         }
-
-            //         if (currentSymbol == LexicalAnalyzer.assign)
-            //         {
-            //             // Присваивание
-            //             currentSymbol = lexer.NextSym();
-            //             Expression();
-            //         }
-            //         break;
-
-            //     case LexicalAnalyzer.withsy:
-            //         // Оператор with
-            //         currentSymbol = lexer.NextSym();
-
-            //         do
-            //         {
-            //             if (currentSymbol != LexicalAnalyzer.ident)
-            //             {
-            //                 InputOutput.Error(9, lexer.token); // Ожидается идентификатор
-            //                 //return;
-            //             }
-            //             currentSymbol = lexer.NextSym();
-
-            //             if (currentSymbol == LexicalAnalyzer.comma)
-            //                 currentSymbol = lexer.NextSym();
-
-            //         } while (currentSymbol == LexicalAnalyzer.comma);
-
-            //         if (currentSymbol != LexicalAnalyzer.dosy)
-            //         {
-            //             InputOutput.Error(21, lexer.token); // Ожидается 'do'
-            //             //return;
-            //         }
-            //         currentSymbol = lexer.NextSym();
-
-            //         if (currentSymbol == LexicalAnalyzer.beginsy)
-            //         {
-            //             currentSymbol = lexer.NextSym();
-            //             ParseCompoundStatement();
-            //         }
-            //         break;
-
-            //     case LexicalAnalyzer.beginsy:
-            //         // Вложенный составной оператор
-            //         currentSymbol = lexer.NextSym();
-            //         ParseCompoundStatement();
-            //         break;
-
-            //     default:
-            //         // Пропускаем другие операторы
-            //         while (currentSymbol != LexicalAnalyzer.semicolon && 
-            //                 currentSymbol != LexicalAnalyzer.endsy)
-            //         {
-            //             currentSymbol = lexer.NextSym();
-            //         }
-            //         break;
-            // }
-
-            // <простой оператор> ::= <оператор присваивания> | <оператор процедуры> | <оператор
-            // перехода> | <пустой оператор>
-
-            //<оператор присваивания> ::= <переменная> := <выражение> | <имя функции> := <выражение>
-            // <оператор процедуры> ::= <имя процедуры> |
-            // <имя процедуры> (<фактический параметр> {, <фактический параметр>})
-
-            // <сложный оператор> ::= <составной оператор> | <выбирающий оператор> | <оператор цикла> |
-            // <оператор присоединения>
         }
 
         void CaseList()
