@@ -4,14 +4,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 
 namespace Compiler
 {
     class SyntaxAnalyzer
     {
+        private bool _panic = false;
+        private HashSet<byte> _currentExits = new HashSet<byte> { LexicalAnalyzer.semicolon };
+        private byte _foundExit = LexicalAnalyzer.eof;
+
         private LexicalAnalyzer lexer;
         private IdentTable semantic;
         private byte currentSymbol;
+
+        /// <summary>
+        /// Страшно - ищем выход
+        /// </summary>
+        void Panic()
+        {
+            _panic = true;
+
+            while (!_currentExits.Contains(currentSymbol))
+            {
+                currentSymbol = lexer.NextSym();
+            }
+
+            _foundExit = currentSymbol;
+        }
 
         /// <summary>
         /// Обязательный символ
@@ -19,6 +39,17 @@ namespace Compiler
         /// <param name="symbol"></param>
         private void Accept(byte expected)
         {
+            if (_panic)
+            {
+                if (expected != _foundExit)
+                {
+                    return;            
+                }
+
+                _foundExit = LexicalAnalyzer.eof;
+                _panic = false;
+            }
+
             if (currentSymbol == expected)
             {
                 currentSymbol = lexer.NextSym();
@@ -26,6 +57,8 @@ namespace Compiler
             else
             {
                 InputOutput.Error(expected, lexer.tokenPos);
+
+                Panic();
 
                 if (currentSymbol == LexicalAnalyzer.eof)
                 {
@@ -140,7 +173,7 @@ namespace Compiler
                 currentSymbol = lexer.NextSym();
                 do
                 {
-                    VarDeclaration();   
+                    VarDeclaration();
                     Accept(LexicalAnalyzer.semicolon);
                 } while (currentSymbol == LexicalAnalyzer.ident);
             }
@@ -198,15 +231,8 @@ namespace Compiler
 
                             Accept(LexicalAnalyzer.rbracket);
                         }
-                        
-                        if (currentSymbol != LexicalAnalyzer.ofsy)
-                        {
-                            InputOutput.Error(14, lexer.tokenPos);
-                        }
-                        else
-                        {
-                            currentSymbol = lexer.NextSym();
-                        }
+
+                        Accept(LexicalAnalyzer.ofsy);
                         
                         Type();
 
