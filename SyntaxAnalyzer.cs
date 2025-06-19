@@ -834,7 +834,8 @@ namespace Compiler
                    currentSymbol == LexicalAnalyzer.greater ||
                    currentSymbol == LexicalAnalyzer.laterequal ||
                    currentSymbol == LexicalAnalyzer.greaterequal ||
-                   currentSymbol == LexicalAnalyzer.latergreater)
+                   currentSymbol == LexicalAnalyzer.latergreater ||
+                   currentSymbol == LexicalAnalyzer.insy)
             {
                 currentSymbol = lexer.NextSym();
                 SimpleExpression();
