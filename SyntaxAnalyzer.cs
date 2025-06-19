@@ -941,6 +941,7 @@ namespace Compiler
                     break;
                 
                 case LexicalAnalyzer.ident:
+                    // нужно разделять идентификаторы var и подпрограмм
                     Variable();
                     break;
 
