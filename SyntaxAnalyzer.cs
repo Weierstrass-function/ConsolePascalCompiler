@@ -423,7 +423,11 @@ namespace Compiler
                     Accept(LexicalAnalyzer.colon);
                     Type();
 
-                    if (currentSymbol != LexicalAnalyzer.semicolon)
+                    if (currentSymbol == LexicalAnalyzer.semicolon)
+                    {
+                        currentSymbol = lexer.NextSym();
+                    }
+                    else
                     {
                         break;
                     }
@@ -779,12 +783,12 @@ namespace Compiler
 
         void ParameterList()
         {
-            Variable();
+            Expression();
             while (currentSymbol == LexicalAnalyzer.comma ||
                    currentSymbol == LexicalAnalyzer.colon)
             {
                 currentSymbol = lexer.NextSym();
-                Variable();
+                Expression();
             }
         }
 
