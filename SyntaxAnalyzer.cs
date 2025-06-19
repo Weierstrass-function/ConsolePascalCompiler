@@ -22,6 +22,20 @@ namespace Compiler
             }
         }
 
+        private void Panic()
+        {
+
+        }
+
+        private void Netralization(byte expected)
+        {
+            if (expected == LexicalAnalyzer.ident)
+            {
+                Panic();
+            }
+
+        }
+
         /// <summary>
         /// Обязательный символ
         /// </summary>
@@ -35,6 +49,8 @@ namespace Compiler
             else
             {
                 InputOutput.Error(expected, lexer.tokenPos);
+
+                Netralization(expected);
 
                 if (currentSymbol == LexicalAnalyzer.eof)
                 {
@@ -391,6 +407,7 @@ namespace Compiler
                 if (currentSymbol == LexicalAnalyzer.casesy)
                 {
                     currentSymbol = lexer.NextSym();
+
                     if (currentSymbol == LexicalAnalyzer.ident)
                     {
                         currentSymbol = lexer.NextSym();
@@ -426,30 +443,26 @@ namespace Compiler
 
         void OrdinalType()
         {
-            if (currentSymbol == LexicalAnalyzer.leftpar)
+            switch(currentSymbol)
             {
-                currentSymbol = lexer.NextSym();
-                IdentList();
-                Accept(LexicalAnalyzer.rightpar);
-            }
-            else
-            {
-                if (currentSymbol == LexicalAnalyzer.ident)
-                {
+                case LexicalAnalyzer.leftpar:
                     currentSymbol = lexer.NextSym();
+                    IdentList();
+                    Accept(LexicalAnalyzer.rightpar);
+                    break;
 
-                    if (currentSymbol == LexicalAnalyzer.twopoints)
-                    {
-                        currentSymbol = lexer.NextSym();
-                        Constant();
-                    }
-                }
-                else
-                {
-                    Constant();
+                case LexicalAnalyzer.intc:
+                case LexicalAnalyzer.floatc:
+                case LexicalAnalyzer.charc:
+                    byte tmp = currentSymbol;
+                    currentSymbol = lexer.NextSym();
                     Accept(LexicalAnalyzer.twopoints);
-                    Constant();
-                }
+                    Accept(tmp);
+                    break;
+
+                default:
+                    Accept(LexicalAnalyzer.ident);
+                    break;
             }
         }
 

@@ -115,8 +115,16 @@ namespace Compiler
         /// Получение следующего символа
         /// </summary>
         /// <returns>Код символа</returns>
+        byte symBuff = 0;
         public byte NextSym()
         {
+            if (symBuff != 0)
+            {
+                symbol = symBuff;
+                symBuff = 0;
+                return symbol;
+            }
+
             bool skip;
             do
             {
@@ -312,7 +320,8 @@ namespace Compiler
                         InputOutput.NextCh();
                         if (InputOutput.Ch == '.')
                         {
-                            symbol = twopoints; InputOutput.NextCh();
+                            symbol = twopoints; 
+                            InputOutput.NextCh();
                         }
                         else symbol = point;
                         WriteSymbolToFile();
@@ -406,10 +415,18 @@ namespace Compiler
                     }
                     symbol = floatc;
                 }
+
+                // посли точки нет цифр может это ".."
+                else if (InputOutput.Ch == '.')
+                {
+                    symbol = LexicalAnalyzer.intc;
+                    symBuff = twopoints;
+                    InputOutput.NextCh();
+                }
+
                 else
                 {
-                    symbol = intc;
-                    InputOutput.NextCh(); // пропуск точки
+                    symbol = point;
                 }
             }
             else
