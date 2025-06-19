@@ -763,5 +763,27 @@ namespace Compiler
                     return;
             }
         }
+
+        static bool Belong(byte element, HashSet<byte> set)
+        {
+            return set.Contains(element);
+        }
+
+        void SkipTo(HashSet<byte> where)
+        {
+            while (!Belong(lexer.symbol, where))
+            {
+                currentSymbol = lexer.NextSym();
+            }
+        }
+
+        void SkipTo2(HashSet<byte> start, HashSet<byte> follow)
+        {
+            while (!(Belong(lexer.symbol, start) ||
+                Belong(lexer.symbol, follow)))
+            {
+                currentSymbol = lexer.NextSym();
+            }
+        }
     }
 }
