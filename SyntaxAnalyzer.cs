@@ -941,8 +941,7 @@ namespace Compiler
                     break;
                 
                 case LexicalAnalyzer.ident:
-                    currentSymbol = lexer.NextSym();
-
+                    Variable();
                     break;
 
             }
