@@ -42,7 +42,7 @@ namespace Compiler
 
         public static void ReadFile(string filePath)
         {
-           try
+            try
             {
                 if (!System.IO.File.Exists(filePath))
                 {

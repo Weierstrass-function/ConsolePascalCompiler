@@ -128,15 +128,7 @@ namespace Compiler
             bool skip;
             do
             {
-                skip = false;
-
-                // while (InputOutput.Ch == ' ' || 
-                // InputOutput.Ch == '\t' || 
-                // InputOutput.Ch == '\n')
-                // {
-                //     InputOutput.NextCh();
-                // } 
-                
+                skip = false;                
 
                 tokenPos.lineNumber = InputOutput.positionNow.lineNumber;
                 tokenPos.charNumber = InputOutput.positionNow.charNumber;
@@ -440,7 +432,7 @@ namespace Compiler
         {
             InputOutput.NextCh();
             // char prevChar = InputOutput.Ch;
-            // string str = "";
+            string str = "";
 
             while (InputOutput.Ch != '\n' &&
                 InputOutput.Ch != '\0')
@@ -459,7 +451,7 @@ namespace Compiler
                 }
                 else
                 {
-                    //str += InputOutput.Ch;
+                    str += InputOutput.Ch;
                     InputOutput.NextCh();
                 }
             }
@@ -469,7 +461,15 @@ namespace Compiler
                 InputOutput.Error(84, InputOutput.positionNow);
             }
 
-            symbol = stringc;
+            if (str.Length == 1)
+            {
+                symbol = charc;
+            }
+            else
+            {
+                symbol = stringc;
+            }
+
             WriteSymbolToFile();
         }
 
