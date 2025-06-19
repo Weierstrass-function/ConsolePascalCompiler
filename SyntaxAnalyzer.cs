@@ -1,13 +1,16 @@
+using ConsolePascalCompiler;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 
 namespace Compiler
 {
     class SyntaxAnalyzer
     {
         private LexicalAnalyzer lexer;
+        private IdentTable semantic;
         private byte currentSymbol;
 
         /// <summary>
@@ -44,6 +47,11 @@ namespace Compiler
         {
             if (currentSymbol == expected)
             {
+                if (currentSymbol == LexicalAnalyzer.ident)
+                {
+                    semantic.Analyze(lexer.);
+                }
+
                 currentSymbol = lexer.NextSym();
             }
             else

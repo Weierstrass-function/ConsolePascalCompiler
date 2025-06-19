@@ -86,7 +86,7 @@ namespace Compiler
 
         public byte symbol; // код символаwri
         public TextPosition tokenPos; // позиция символа
-        string addrName; // адрес идентификатора в таблице имен
+        public string addrName; // адрес идентификатора в таблице имен
         int nmb_int; // значение целой константы
         float nmb_float; // значение вещественной константы
         char one_symbol; // значение символьной константы

@@ -116,43 +116,42 @@ namespace ConsolePascalCompiler
         {
             _scopes.Pop();
         }
+
+
+        public Purpose wait;
+
+        public void Analyze()
+        {
+
+        }
     }
 
-    
+
 
 
     //public class SemanticAnalyzer
     //{
-    //    private readonly SymbolTable _symbolTable;
+        
+
+    //    //private readonly SymbolTable _symbolTable;
 
 
-    //    private Stack<Scope> _scopes = new Stack<Scope>();
-    //    private SymbolTable _symbols = new SymbolTable();
+    //    //private Stack<Scope> _scopes = new Stack<Scope>();
+    //    //private SymbolTable _symbols = new SymbolTable();
 
-    //    // При начале блока (program/procedure)
-    //    public void EnterScope(string name)
-    //    {
-    //        _scopes.Push(new Scope(name));
-    //    }
 
-    //    // При завершении блока
-    //    public void LeaveScope()
-    //    {
-    //        _scopes.Pop();
-    //    }
+    //    //// Обработка объявления переменной
+    //    //public void ProcessVarDeclaration(string varName, string typeName)
+    //    //{
+    //    //    if (_symbols.IsDeclaredInScope(varName, _scopes.Peek()))
+    //    //    {
+    //    //        //ReportError($"Duplicate variable: {varName}");
+    //    //        return;
+    //    //    }
 
-    //    // Обработка объявления переменной
-    //    public void ProcessVarDeclaration(string varName, string typeName)
-    //    {
-    //        if (_symbols.IsDeclaredInScope(varName, _scopes.Peek()))
-    //        {
-    //            //ReportError($"Duplicate variable: {varName}");
-    //            return;
-    //        }
-
-    //        var type = ResolveType(typeName);
-    //        _symbols.Add(varName, new Symbol(varName, SymbolKind.Variable, type));
-    //    }
+    //    //    var type = ResolveType(typeName);
+    //    //    _symbols.Add(varName, new Symbol(varName, SymbolKind.Variable, type));
+    //    //}
 
     //    //// Обработка присваивания (вызывается при встрече :=)
     //    //public void ProcessAssignment(string leftVar, IExpression rightExpr)
