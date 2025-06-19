@@ -14,32 +14,6 @@ namespace Compiler
         private byte currentSymbol;
 
         /// <summary>
-        /// Необязательный символ
-        /// </summary>
-        /// <param name="symbol"></param>
-        private void OptionalTerminal(byte expected)
-        {
-            if (currentSymbol == expected)
-            {
-                currentSymbol = lexer.NextSym();
-            }
-        }
-
-        private void Panic()
-        {
-
-        }
-
-        private void Netralization(byte expected)
-        {
-            if (expected == LexicalAnalyzer.ident)
-            {
-                Panic();
-            }
-
-        }
-
-        /// <summary>
         /// Обязательный символ
         /// </summary>
         /// <param name="symbol"></param>
@@ -47,18 +21,11 @@ namespace Compiler
         {
             if (currentSymbol == expected)
             {
-                if (currentSymbol == LexicalAnalyzer.ident)
-                {
-                    semantic.Analyze(lexer.);
-                }
-
                 currentSymbol = lexer.NextSym();
             }
             else
             {
                 InputOutput.Error(expected, lexer.tokenPos);
-
-                Netralization(expected);
 
                 if (currentSymbol == LexicalAnalyzer.eof)
                 {

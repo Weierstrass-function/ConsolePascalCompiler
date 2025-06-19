@@ -118,11 +118,32 @@ namespace ConsolePascalCompiler
         }
 
 
-        public Purpose wait;
+        public Purpose wait = Purpose.Programm;
+        bool def = true; // определяющий? (false - определяемый)
+        string _lastName;
 
-        public void Analyze()
+        public void Analyze(string name)
         {
+            if (def)
+            {
+                switch(wait)
+                {
+                    case Purpose.Programm:
+                    case Purpose.Variable:
+                        _scopes.Peek().Add(name, new(wait));
+                        break;
 
+                    case Purpose.Type:
+                        if (IsKeyExists(name))
+                        {
+
+                        }
+                        //_scopes.Peek()[_lastName].Type = name;
+                        break;
+                }
+            }
+
+            _lastName = name;
         }
     }
 
