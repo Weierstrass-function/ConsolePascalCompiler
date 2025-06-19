@@ -219,14 +219,14 @@ namespace Compiler
                 case 83: return "ошибка в символьной константе";          // charc
                 case 84: return "незакрытый строковый литерал";           // stringc
                 case 100: return "использование имени не соответствует описанию"; // insy
-                case 101: return "имя описано повторно";                  // ofsy
+                
                 case 104: return "должно идти слово END";                 // endsy
                 case 113: return "должно идти слово BEGIN";              // beginsy
                 case 122: return "должно идти слово PROGRAM";            // programsy
 
                 // Остальные ошибки (перенумерованы, начиная с 1000, чтобы не пересекаться с кодами символов)
                 case 1000: return "ошибка в простом типе";
-
+                case 1001: return "имя описано повторно";                  // ofsy
                 case 1002: return "ошибка в списке параметров";
                 case 1003: return "ошибка в типе";
                 case 1004: return "ошибка в разделе описаний";

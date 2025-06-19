@@ -949,8 +949,13 @@ namespace Compiler
                     break;
                 
                 case LexicalAnalyzer.ident:
-                    // нужно разделять идентификаторы var и подпрограмм
                     Variable();
+                    if (currentSymbol == LexicalAnalyzer.leftpar)
+                    {
+                        currentSymbol = lexer.NextSym();
+                        ParameterList();
+                        Accept(LexicalAnalyzer.rightpar);
+                    }
                     break;
 
             }
