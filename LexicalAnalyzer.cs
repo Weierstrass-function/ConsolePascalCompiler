@@ -122,6 +122,7 @@ namespace Compiler
             {
                 symbol = symBuff;
                 symBuff = 0;
+                WriteSymbolToFile();
                 return symbol;
             }
 
@@ -411,7 +412,7 @@ namespace Compiler
                 // посли точки нет цифр может это ".."
                 else if (InputOutput.Ch == '.')
                 {
-                    symbol = LexicalAnalyzer.intc;
+                    symbol = intc;
                     symBuff = twopoints;
                     InputOutput.NextCh();
                 }

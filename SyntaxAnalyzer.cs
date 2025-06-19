@@ -417,12 +417,16 @@ namespace Compiler
                         ConstantAndFields();
                     }
                 }
-                else
+                else // ident
                 {
                     IdentList();
                     Accept(LexicalAnalyzer.colon);
-                    Accept(LexicalAnalyzer.ident);
-                    Accept(LexicalAnalyzer.semicolon);
+                    Type();
+
+                    if (currentSymbol != LexicalAnalyzer.semicolon)
+                    {
+                        break;
+                    }
                 }
             }
         }
