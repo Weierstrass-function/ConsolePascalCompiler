@@ -434,30 +434,54 @@ namespace Compiler
             InputOutput.NextCh();
             // char prevChar = InputOutput.Ch;
             string str = "";
+            bool closed = false;
+
+            //while (InputOutput.Ch != '\n' &&
+            //    InputOutput.Ch != '\0')
+            //{
+            //    if (InputOutput.Ch == '\'')
+            //    {
+            //        InputOutput.NextCh();
+            //        if (InputOutput.Ch == '\'')
+            //        {
+            //            InputOutput.NextCh();
+            //        }
+            //        else
+            //        {
+            //            break;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        str += InputOutput.Ch;
+            //        InputOutput.NextCh();
+            //    }
+            //}
 
             while (InputOutput.Ch != '\n' &&
                 InputOutput.Ch != '\0')
             {
                 if (InputOutput.Ch == '\'')
                 {
-                    InputOutput.NextCh();
-                    if (InputOutput.Ch == '\'')
+                    if (closed)
                     {
-                        InputOutput.NextCh();
+                        str += InputOutput.Ch;
                     }
-                    else
-                    {
-                        break;
-                    }
+                    closed = !closed;
                 }
                 else
                 {
+                    if (closed)
+                    {
+                        break;
+                    }
+
                     str += InputOutput.Ch;
-                    InputOutput.NextCh();
                 }
+                InputOutput.NextCh();
             }
 
-            if (InputOutput.Ch == '\n')
+            if (!closed)
             {
                 InputOutput.Error(84, InputOutput.positionNow);
             }

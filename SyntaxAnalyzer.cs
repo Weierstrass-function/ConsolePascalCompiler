@@ -11,7 +11,11 @@ namespace Compiler
     class SyntaxAnalyzer
     {
         private bool _panic = false;
-        private HashSet<byte> _currentExits = new HashSet<byte> { LexicalAnalyzer.semicolon };
+        private HashSet<byte> _currentExits = new HashSet<byte> 
+        { LexicalAnalyzer.semicolon,
+        LexicalAnalyzer.endsy,
+        LexicalAnalyzer.beginsy,
+        LexicalAnalyzer.eof};
         private byte _foundExit = LexicalAnalyzer.eof;
 
         private LexicalAnalyzer lexer;
@@ -265,7 +269,7 @@ namespace Compiler
                         break;
 
                     default:
-                        InputOutput.Error(2, lexer.tokenPos);
+                        Accept(LexicalAnalyzer.ident); // чтоб перехватить panic
                         break;
                 }
             }
