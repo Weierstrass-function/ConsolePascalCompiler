@@ -90,8 +90,7 @@ namespace Compiler
 
             InputOutput.End();
         } 
-
-        
+    
         // 'program' <ident> ['(' <ident> {, <ident>} ')' ];' <Block> '.'
         void Program()
         {
@@ -357,7 +356,7 @@ namespace Compiler
             Statement();
             while (currentSymbol == LexicalAnalyzer.semicolon)
             {
-                currentSymbol = lexer.NextSym();
+                Accept(LexicalAnalyzer.semicolon);
                 Statement();
             }
 
@@ -577,7 +576,6 @@ namespace Compiler
             }
         }
 
-
         // <Expression> {, <Expression>}
         void Expression()
         {
@@ -650,7 +648,6 @@ namespace Compiler
                 Factor();
             }
         }
-
 
         void Factor()
         {
