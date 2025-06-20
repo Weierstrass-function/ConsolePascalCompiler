@@ -60,7 +60,7 @@ namespace Compiler
             }
             else
             {
-                InputOutput.Error(expected, lexer.tokenPos);
+                InputOutput.AddError(expected, lexer.tokenPos);
 
                 Panic();
 
@@ -223,7 +223,7 @@ namespace Compiler
 
                         if (currentSymbol != LexicalAnalyzer.lbracket)
                         {
-                            InputOutput.Error(12, lexer.tokenPos);
+                            InputOutput.AddError(12, lexer.tokenPos);
                         }
                         else
                         {
@@ -723,26 +723,6 @@ namespace Compiler
             // }
         }
 
-        void ParseArrayIndex()
-        {
-            currentSymbol = lexer.NextSym();
-            Expression();
-            Accept(LexicalAnalyzer.rbracket);
-            currentSymbol = lexer.NextSym();
-        }
-
-        void ParseRecordField()
-        {
-            currentSymbol = lexer.NextSym();
-            Accept(LexicalAnalyzer.ident);
-            currentSymbol = lexer.NextSym();
-        }
-
-        void ParseUnsignedConstant()
-        {
-            currentSymbol = lexer.NextSym();
-        }
-
         void Constant()
         {
             if (currentSymbol == LexicalAnalyzer.stringc)
@@ -766,53 +746,8 @@ namespace Compiler
                 }
                 else
                 {
-                    InputOutput.Error(18, lexer.tokenPos);
+                    InputOutput.AddError(18, lexer.tokenPos);
                 }
-            }
-        }
-
-        private bool IsUnsignedConstant(byte symbol)
-        {
-            return symbol == LexicalAnalyzer.intc ||
-                   symbol == LexicalAnalyzer.floatc ||
-                   symbol == LexicalAnalyzer.charc;
-        }
-
-        void UnsignedConstant()
-        {
-            switch (currentSymbol)
-            {
-                case LexicalAnalyzer.intc:
-                case LexicalAnalyzer.floatc:
-                case LexicalAnalyzer.charc:
-                case LexicalAnalyzer.stringc:
-                    currentSymbol = lexer.NextSym();
-                    break;
-                default:
-                    InputOutput.Error(18, lexer.tokenPos); // Ожидается константа
-                    return;
-            }
-        }
-
-        static bool Belong(byte element, HashSet<byte> set)
-        {
-            return set.Contains(element);
-        }
-
-        void SkipTo(HashSet<byte> where)
-        {
-            while (!Belong(lexer.symbol, where))
-            {
-                currentSymbol = lexer.NextSym();
-            }
-        }
-
-        void SkipTo2(HashSet<byte> start, HashSet<byte> follow)
-        {
-            while (!(Belong(lexer.symbol, start) ||
-                Belong(lexer.symbol, follow)))
-            {
-                currentSymbol = lexer.NextSym();
             }
         }
     }

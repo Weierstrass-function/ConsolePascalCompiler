@@ -86,7 +86,7 @@ namespace ConsolePascalCompiler
         {
             if (IsKeyExists(name))
             {
-                InputOutput.Error(1001, InputOutput.positionNow);
+                InputOutput.AddError(1001, InputOutput.positionNow);
             }
             else
             {

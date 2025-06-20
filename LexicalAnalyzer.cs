@@ -328,7 +328,7 @@ namespace Compiler
                         break;
 
                     default:
-                        InputOutput.Error(0, InputOutput.positionNow);
+                        InputOutput.AddError(0, InputOutput.positionNow);
                         InputOutput.NextCh();
                         symbol = 0;
                         WriteSymbolToFile();
@@ -355,7 +355,7 @@ namespace Compiler
                 else
                 {
                     // константа превышает предел
-                    InputOutput.Error(203, InputOutput.positionNow);
+                    InputOutput.AddError(203, InputOutput.positionNow);
                     nmb_int = 0;
                     while (InputOutput.Ch >= '0' && InputOutput.Ch <= '9') InputOutput.NextCh();
                 }
@@ -403,7 +403,7 @@ namespace Compiler
                         }
                         else
                         {
-                            InputOutput.Error(206, InputOutput.positionNow); // Ожидались цифры после E
+                            InputOutput.AddError(206, InputOutput.positionNow); // Ожидались цифры после E
                         }
                     }
                     symbol = floatc;
@@ -483,7 +483,7 @@ namespace Compiler
 
             if (!closed)
             {
-                InputOutput.Error(84, InputOutput.positionNow);
+                InputOutput.AddError(84, InputOutput.positionNow);
             }
 
             if (str.Length == 1)

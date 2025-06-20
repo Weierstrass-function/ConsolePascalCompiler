@@ -8,13 +8,6 @@ namespace Compiler
     {
         public uint lineNumber; // номер строки
         public byte charNumber; // номер позиции в строке
-
-        // местоположение ошибки
-        public TextPosition(uint ln = 0, byte c = 0)
-        {
-            lineNumber = ln;
-            charNumber = c;
-        }
     }
 
     struct Err
@@ -40,6 +33,10 @@ namespace Compiler
         static StreamReader? File = null;
         static uint errCount = 0;
 
+        /// <summary>
+        /// Точка начала работы компилятора
+        /// </summary>
+        /// <param name="filePath"></param>
         public static void ReadFile(string filePath)
         {
             try
@@ -65,16 +62,32 @@ namespace Compiler
             {
                 SyntaxAnalyzer s = new SyntaxAnalyzer(new LexicalAnalyzer());
                 s.Analyze();
-
-                // // для запуска отдельно только лексера раскомментировать это, закомментировать 2 строки выше
-                // LexicalAnalyzer l = new LexicalAnalyzer();
-                // while (Ch != '\n')
-                // {
-                //     l.NextSym();
-                // }
             }
         }
-        
+
+        /// <summary>
+        /// Точка завершения работы компилятора
+        /// </summary>
+        static public void End()
+        {
+            ConsoleColor defaultColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Компиляция завершена: ошибок — ");
+            if (errCount > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"{errCount}");
+                Console.ForegroundColor = ConsoleColor.Green;
+            }
+            else
+            {
+                Console.WriteLine("нет");
+            }
+            Console.ForegroundColor = defaultColor;
+
+            Environment.Exit(0);
+        }
+
         /// <summary>
         /// Получение следующего символа
         /// </summary>
@@ -121,26 +134,9 @@ namespace Compiler
             }
         }
 
-        static public void End ()
-        {
-            ConsoleColor defaultColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("Компиляция завершена: ошибок — ");
-            if (errCount > 0)
-            {
-               Console.ForegroundColor = ConsoleColor.Red;
-               Console.WriteLine($"{errCount}");
-               Console.ForegroundColor = ConsoleColor.Green;
-            }
-            else
-            {
-               Console.WriteLine("нет");
-            }
-            Console.ForegroundColor = defaultColor;
-
-            Environment.Exit(0);
-        }
-
+        /// <summary>
+        /// Вывод строки и ее ошибок в консоль
+        /// </summary>
         private static void ListLine()
         {
             if (positionNow.lineNumber > 0)
@@ -177,11 +173,11 @@ namespace Compiler
         }
 
         /// <summary>
-        /// Формирование таблицы ошибок
+        /// Добавление новой ошибки
         /// </summary>
         /// <param name="errorCode"></param>
         /// <param name="position"></param>
-        static public void Error(ushort errorCode, TextPosition position)
+        static public void AddError(ushort errorCode, TextPosition position)
         {
             if (err.Count < ERRMAX)
             {

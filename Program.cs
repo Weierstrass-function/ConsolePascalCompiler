@@ -10,24 +10,6 @@ namespace Compiler
         static void Main()
         {
             InputOutput.ReadFile("example.pas");
-
-            // SyntaxAnalyzer s = new SyntaxAnalyzer(new LexicalAnalyzer());
-            // s.Analyze();
-
-
-            //LexicalAnalyzer l = new LexicalAnalyzer();
-            //while (true) // Читаем до конца файл
-            //{
-            //    try
-            //    {
-            //        l.NextSym();
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
-            //        break;
-            //    }
-            //}
         }
     }
 }
